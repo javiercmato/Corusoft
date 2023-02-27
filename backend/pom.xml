@@ -202,6 +202,38 @@
                 </executions>
             </plugin>
 
+            <!-- Detener cualquier contenedor existente al ejecutar mvn clean -->
+            <plugin>
+                <groupId>com.dkanejs.maven.plugins</groupId>
+                <artifactId>docker-compose-maven-plugin</artifactId>
+                <version>${plugin.syncdk.version}</version>
+                <executions>
+                    <execution>
+                        <id>stop-dev-database</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>down</goal>
+                        </goals>
+                        <configuration>
+                            <removeOrphans>true</removeOrphans>
+                            <composeFile>${docker-compose.dev.path}</composeFile>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>stop-test-database</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>down</goal>
+                        </goals>
+                        <configuration>
+                            <removeOrphans>true</removeOrphans>
+                            <composeFile>${docker-compose.test.path}</composeFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -237,6 +269,7 @@
                                     <goal>up</goal>
                                 </goals>
                                 <configuration>
+                                    <removeOrphans>true</removeOrphans>
                                     <composeFile>${docker-compose.dev.path}</composeFile>
                                     <detachedMode>true</detachedMode>
                                 </configuration>
@@ -318,6 +351,7 @@
                                 <configuration>
                                     <composeFile>${docker-compose.test.path}</composeFile>
                                     <detachedMode>true</detachedMode>
+                                    <removeOrphans>true</removeOrphans>
                                 </configuration>
                             </execution>
 
