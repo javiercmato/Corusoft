@@ -1,0 +1,37 @@
+# Este script permite tener una base de datos Postgres disponible dentro de tu máquina local.
+# De este modo evitamos conflictos con otras instalaciones de Postgres en la máquina.
+# Para ejecutarla es necesario tener docker-compose (y docker) instalados.
+#   Arrancar contenedor: ejecutar 'docker-compose -f docker-compose.test.yml up' sobre este fichero.
+#   Apagar contenedor: ejecutar 'docker-compose -f docker-compose.test.yml down' sobre este fichero.
+
+version: '3.3'
+services:
+  postgres_testing_db:
+    image: 'postgres:14-alpine'
+    container_name: 'Testing_container'
+    # Por defecto Postgres se ejecuta en el puerto 5432
+    # Vamos a blindar la conexión de nuestra máquina desde un puerto distinto, al puerto de Postgres dentro del contenedor
+    # [Puerto que abrimos en nuestra máquina]:[Puerto al que queremos acceder en el contenedor]
+    ports:
+      - 5431:5432       # Abrimos el localhost:5431 para evitar problemas si tenemos Postgres instalado
+
+    # Creamos una red para evitar conflictos con otras instalaciones existentes en nuestra máquina local
+    networks:
+      - testing_network
+
+    # Variables de entorno del contenedor
+    environment:
+      POSTGRES_USER: postgres                 # Nombre del usuario por defecto en la BD
+      POSTGRES_PASSWORD: password             # Contraseña para acceder a la BD
+      POSTGRES_DB: testing                    # Nombre de la base de datos creada por defecto en la BD
+
+    # Crear las tablas tan pronto se arranque el contenedor
+    # https://levelup.gitconnected.com/creating-and-filling-a-postgres-db-with-docker-compose-e1607f6f882f
+    volumes:
+      # Ficheros SQL dentro de docker-entrypoint-initdb.d se ejecutan automáticamente al arrancar el contenedor
+      - ../../main/sql/database-schema.sql:/docker-entrypoint-initdb.d/database-schema.sql
+
+
+networks:
+  testing_network:
+    driver: bridge

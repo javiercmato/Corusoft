@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.0.3</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>com.corusoft</groupId>
+    <artifactId>ticket-manager</artifactId>
+    <version>0.1</version>
+    <name>ticket-manager</name>
+    <description>Backend aplicación APM Grupo Corusoft</description>
+
+    <properties>
+        <!-- Propiedades del proyecto -->
+        <project.contextPath>/backend</project.contextPath>
+        <docker-compose.dev.path>${project.basedir}/src/main/docker/docker-compose.dev.yml</docker-compose.dev.path>
+        <docker-compose.test.path>${project.basedir}/src/test/docker/docker-compose.test.yml</docker-compose.test.path>
+        <java.version>17</java.version>
+
+        <!-- Versiones de dependencias -->
+        <plugin.jjwt.version>0.9.1</plugin.jjwt.version>
+        <plugin.jacoco.version>0.8.7</plugin.jacoco.version>
+        <plugin.failsafe.version>3.0.0-M9</plugin.failsafe.version>
+        <plugin.syncdk.version>2.4.0</plugin.syncdk.version>
+        <plugin.maven-help.version>3.3.0</plugin.maven-help.version>
+        <dependencies.versions.postgresqldriver>42.5.4</dependencies.versions.postgresqldriver>
+        <dependencies.versions.commons-io>2.11.0</dependencies.versions.commons-io>
+        <testcontainers.version>1.17.6</testcontainers.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${dependencies.versions.postgresqldriver}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.transaction</groupId>
+            <artifactId>jakarta.transaction-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>${plugin.jjwt.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${dependencies.versions.commons-io}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <!-- Nombre de la aplicación empaquetada: "ticket-manager-X.Y" (X.Y es la versión) -->
+        <finalName>
+            ${project.artifactId}-${project.version}
+        </finalName>
+
+        <!-- Hacer visibles los recursos del proyecto en el empaquetado -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+
+            <resource>
+                <directory>src/main/docker</directory>
+                <filtering>true</filtering>
+            </resource>
+
+            <resource>
+                <directory>src/main/sql</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+
+            <testResource>
+                <directory>src/test/docker</directory>
+                <filtering>true</filtering>
+            </testResource>
+
+        </testResources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- Configuración de la ayuda de Maven -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-help-plugin</artifactId>
+                <version>${plugin.maven-help.version}</version>
+                <executions>
+                    <execution>
+                        <!-- Mostrar qué entorno de desarrollo (development, testing o production) está activo en la fase de compilación -->
+                        <id>show-active-profile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>active-profiles</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <!-- MAS INFO: https://stackabuse.com/spring-boot-profiles-for-dev-and-prod-environments/  -->
+    <profiles>
+        <!-- Configuración del entorno de desarrollo: development -->
+        <profile>
+            <id>development</id>
+            <properties>
+                <!-- Configurar Spring para usar fichero src/main/resources/application-dev.yml -->
+                <activatedProperties>dev</activatedProperties>
+                <!-- Saltar tets -->
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+            <!-- Activar por defecto el entorno de desarrollo -->
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <!-- Configuración de Syncdk: ejecutar comandos de Docker-Compose desde Maven -->
+                    <plugin>
+                        <groupId>com.dkanejs.maven.plugins</groupId>
+                        <artifactId>docker-compose-maven-plugin</artifactId>
+                        <version>${plugin.syncdk.version}</version>
+                        <executions>
+                            <!-- Arrancar BD de desarrollo al arrancar Spring -->
+                            <execution>
+                                <id>up</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>up</goal>
+                                </goals>
+                                <configuration>
+                                    <composeFile>${docker-compose.dev.path}</composeFile>
+                                    <detachedMode>true</detachedMode>
+                                </configuration>
+                            </execution>
+
+                            <!-- Apagar BD de pruebas tras acabar los tests -->
+                            <execution>
+                                <id>down</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>down</goal>
+                                </goals>
+                                <configuration>
+                                    <composeFile>${docker-compose.dev.path}</composeFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Configuración del entorno de pruebas: testing -->
+        <profile>
+            <id>testing</id>
+            <properties>
+                <!-- Configurar Spring para usar fichero src/test/resources/application-test.yml -->
+                <activatedProperties>test</activatedProperties>
+            </properties>
+
+            <build>
+                <plugins>
+                    <!-- Configuración de Jacoco: Cobertura del código -->
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${plugin.jacoco.version}</version>
+                        <executions>
+                            <!-- Preparar agente de Jacoco para inspeccionar código -->
+                            <execution>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+
+                            <!-- Generar informes antes de empaquetar código -->
+                            <execution>
+                                <id>report</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- Configuración de Maven para los tests de integración -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>${plugin.failsafe.version}</version>
+                    </plugin>
+
+                    <!-- Configuración de Syncdk: ejecutar comandos de Docker-Compose desde Maven -->
+                    <plugin>
+                        <groupId>com.dkanejs.maven.plugins</groupId>
+                        <artifactId>docker-compose-maven-plugin</artifactId>
+                        <version>${plugin.syncdk.version}</version>
+                        <executions>
+                            <!-- Arrancar BD de pruebas antes de los tests -->
+                            <execution>
+                                <id>up</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <!-- Primero apagar y luego encender (en ese orden) para evitar errores -->
+                                    <goal>down</goal>
+                                    <goal>up</goal>
+                                </goals>
+                                <configuration>
+                                    <composeFile>${docker-compose.test.path}</composeFile>
+                                    <detachedMode>true</detachedMode>
+                                </configuration>
+                            </execution>
+
+                            <!-- Apagar BD de pruebas tras acabar los tests -->
+                            <execution>
+                                <id>down</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>down</goal>
+                                </goals>
+                                <configuration>
+                                    <composeFile>${docker-compose.test.path}</composeFile>
+                                    <removeVolumes>true</removeVolumes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

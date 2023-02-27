@@ -1,0 +1,50 @@
+# Fichero con la configuraci�n global com�n para todos los entornos de ejecuci�n
+spring:
+  profiles:
+    # Indica a Spring que use la configuracion asociada al perfil activo actualmente
+    active: '@activatedProperties@'
+  datasource:
+    tomcat:
+      max-active: 8
+      max-idle: 2
+      max-wait: 5000
+      remove-abandoned: true
+      remove-abandoned-timeout: 15
+      log-abandoned: true
+    driver-class-name: org.postgresql.Driver
+  devtools:
+    restart:
+      trigger-file: reload
+    livereload:
+      enabled: true
+  jpa:
+    database: postgresql
+    show-sql: false
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    open-in-view: false
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 20MB
+      file-size-threshold: 1MB
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+logging:
+  level:
+    org.springframework.boot: info
+server:
+  servlet:
+    context-path: '@project.contextPath@'
+project:
+  jwt:
+    signKey: mySecretSignKey
+    expirationMinutes: 1440       # Minutos en 24 horas
