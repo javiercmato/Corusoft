@@ -8,42 +8,93 @@ DROP TABLE IF EXISTS UserTable;
 
 CREATE TABLE IF NOT EXISTS UserTable
 (
-    id            SERIAL,
-    role          VARCHAR      NOT NULL,
-    nickname      VARCHAR(30)  NOT NULL,
-    password      VARCHAR(30)  NOT NULL,
-    name          VARCHAR(50)  NOT NULL,
-    email         VARCHAR(100) NOT NULL,
-    registered_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT PK_User PRIMARY KEY (id),
-    CONSTRAINT UNIQUE_User_nickname UNIQUE (nickname),
-    CONSTRAINT UNIQUE_User_email UNIQUE (email)
-);
+    id
+    SERIAL,
+    role
+    VARCHAR
+    NOT
+    NULL,
+    nickname
+    VARCHAR
+(
+    30
+) NOT NULL,
+    password VARCHAR NOT NULL,
+    name VARCHAR
+(
+    50
+) NOT NULL,
+    email VARCHAR
+(
+    100
+) NOT NULL,
+    registered_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT PK_User PRIMARY KEY
+(
+    id
+),
+    CONSTRAINT UNIQUE_User_nickname UNIQUE
+(
+    nickname
+),
+    CONSTRAINT UNIQUE_User_email UNIQUE
+(
+    email
+)
+    );
 
 CREATE TABLE IF NOT EXISTS Category
 (
-    id   SERIAL,
-    name VARCHAR(50) NOT NULL,
-
-    CONSTRAINT PK_Category PRIMARY KEY (id),
-    CONSTRAINT UNIQUE_Category_name UNIQUE (name)
-);
+    id
+    SERIAL,
+    name
+    VARCHAR
+(
+    50
+) NOT NULL,
+    CONSTRAINT PK_Category PRIMARY KEY
+(
+    id
+),
+    CONSTRAINT UNIQUE_Category_name UNIQUE
+(
+    name
+)
+    );
 
 CREATE TABLE IF NOT EXISTS CustomizedCategory
 (
-    user_id         INTEGER,
-    category_id     INTEGER,
-    name            VARCHAR(50)    NOT NULL,
-    max_waste_limit DECIMAL(12, 2) NOT NULL,
-
-    CONSTRAINT PK_CustomizedCategory PRIMARY KEY (user_id, category_id),
+    user_id
+    INTEGER,
+    category_id
+    INTEGER,
+    name
+    VARCHAR
+(
+    50
+) NOT NULL,
+    max_waste_limit DECIMAL
+(
+    12,
+    2
+) NOT NULL,
+    CONSTRAINT PK_CustomizedCategory PRIMARY KEY
+(
+    user_id,
+    category_id
+),
     CONSTRAINT FK_CustomizedCategory_TO_UserTable
-        FOREIGN KEY (user_id) REFERENCES UserTable (id)
-            ON DELETE CASCADE
-            ON UPDATE CASCADE,
+    FOREIGN KEY
+(
+    user_id
+) REFERENCES UserTable
+(
+    id
+)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
     CONSTRAINT FK_CustomizedCategory_TO_Category
-        FOREIGN KEY (category_id) REFERENCES Category (id)
+    FOREIGN KEY (category_id) REFERENCES Category (id)
             ON DELETE NO ACTION
             ON UPDATE CASCADE
 );

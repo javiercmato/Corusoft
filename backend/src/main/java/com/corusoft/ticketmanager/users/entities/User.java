@@ -48,4 +48,17 @@ public class User {
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private Set<Subscription> subscriptions = new LinkedHashSet<>();
 
+
+    /* *************** Métodos de entidad *************** */
+
+    /**
+     * Comprobar si el usuario tiene alguna subscripción activa
+     */
+    @Transient
+    public Boolean hasSubscriptionActive() {
+        return subscriptions.stream()
+                .anyMatch((sub) -> sub.getStatus().equals(SubscriptionStatus.ACTIVE));
+    }
+
+
 }

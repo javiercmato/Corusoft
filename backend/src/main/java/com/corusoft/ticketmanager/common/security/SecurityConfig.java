@@ -33,7 +33,7 @@ public class SecurityConfig {
                 // Permitir las peticiones que indiquemos
                 .and().authorizeHttpRequests()
                 // USER ENDPOINTS
-                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()                        // signUp
+                .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()                        // register
                 .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()                           // login
                 .requestMatchers(HttpMethod.POST, "/api/users/login/token").permitAll()                     // loginFromToken
 
