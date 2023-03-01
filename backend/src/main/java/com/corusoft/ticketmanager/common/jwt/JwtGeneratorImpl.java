@@ -3,7 +3,6 @@ package com.corusoft.ticketmanager.common.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -30,7 +29,7 @@ public class JwtGeneratorImpl implements JwtGenerator {
                 //.signWith(SignatureAlgorithm.HS512, signKey.getBytes())
                 // Información a almacenar en el JWT
                 .claim("userID", data.getUserID())
-                .claim("nickName", data.getNickname())
+                .claim("nickname", data.getNickname())
                 .claim("role", data.getRole())
                 .setIssuedAt(new Date())
                 .compact();
@@ -38,9 +37,10 @@ public class JwtGeneratorImpl implements JwtGenerator {
 
     @Override
     public JwtData extractInfoFromToken(String token) {
-        SecretKey secret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(signKey));
-
-        Claims claims = Jwts.parserBuilder().setSigningKey(secret).build()
+        SecretKey secret = Keys.hmacShaKeyFor(signKey.getBytes());
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secret)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
 

@@ -1,24 +1,28 @@
 package com.corusoft.ticketmanager.users.controllers;
 
+import com.corusoft.ticketmanager.common.dtos.ErrorsDTO;
 import com.corusoft.ticketmanager.common.exceptions.EntityAlreadyExistsException;
+import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
 import com.corusoft.ticketmanager.common.jwt.JwtData;
 import com.corusoft.ticketmanager.common.jwt.JwtGenerator;
 import com.corusoft.ticketmanager.users.controllers.dtos.AuthenticatedUserDTO;
+import com.corusoft.ticketmanager.users.controllers.dtos.LoginParamsDTO;
 import com.corusoft.ticketmanager.users.controllers.dtos.RegisterUserParamsDTO;
 import com.corusoft.ticketmanager.users.controllers.dtos.conversors.UserConversor;
 import com.corusoft.ticketmanager.users.entities.User;
+import com.corusoft.ticketmanager.users.exceptions.IncorrectLoginException;
 import com.corusoft.ticketmanager.users.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/users")
@@ -28,11 +32,22 @@ public class UserController {
     private JwtGenerator jwtGenerator;
     @Autowired
     private UserService userService;
-
     /* ******************** TRADUCCIONES DE EXCEPCIONES ******************** */
-
+    public static final String INCORRECT_LOGIN_EXCEPTION_KEY = "users.domain.exceptions.IncorrectLoginException";
+    @Autowired
+    private MessageSource messageSource;
 
     /* ******************** MANEJADORES DE EXCEPCIONES ******************** */
+    @ExceptionHandler(IncorrectLoginException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)     // 400
+    @ResponseBody
+    public ErrorsDTO handleIncorrectLoginException(IncorrectLoginException exception, Locale locale) {
+        String errorMessage = messageSource.getMessage(
+                INCORRECT_LOGIN_EXCEPTION_KEY, null, INCORRECT_LOGIN_EXCEPTION_KEY, locale
+        );
+
+        return new ErrorsDTO(errorMessage);
+    }
 
 
     /* ******************** ENDPOINTS ******************** */
@@ -40,7 +55,8 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<AuthenticatedUserDTO> register(@Validated @RequestBody RegisterUserParamsDTO params) throws EntityAlreadyExistsException {
+    public ResponseEntity<AuthenticatedUserDTO> register(@Validated @RequestBody RegisterUserParamsDTO params)
+            throws EntityAlreadyExistsException {
         // Parsear datos recibidos
         User parsedUser = UserConversor.fromRegisterUserParamsDTO(params);
 
@@ -60,6 +76,34 @@ public class UserController {
                 .created(resourceLocation)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(authUserDTO);
+    }
+
+    @PostMapping(path = "/login",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public AuthenticatedUserDTO login(@Validated @RequestBody LoginParamsDTO params)
+            throws IncorrectLoginException {
+        // Inicia sesión en el servicio
+        User user = userService.login(params.getNickname(), params.getPassword());
+
+        // Generar token para usuario
+        String token = generateServiceTokenFromUser(user);
+
+        // Devolver datos de usuario junto al token generado
+        return UserConversor.toAuthenticatedUserDTO(user, token);
+    }
+
+    @PostMapping(path = "/login/token",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public AuthenticatedUserDTO loginUsingToken(@RequestAttribute("userID") Long userID, @RequestAttribute("serviceToken") String token)
+            throws EntityNotFoundException {
+        // Inicia sesión en el servicio
+        User user = userService.loginFromToken(userID);
+
+        // Devuelve los datos del usuario junto al token recibido
+        return UserConversor.toAuthenticatedUserDTO(user, token);
     }
 
     /* ******************** FUNCIONES AUXILIARES ******************** */

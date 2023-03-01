@@ -28,7 +28,7 @@ public class User {
     @Column(name = "nickname", nullable = false, unique = true, length = 30)
     private String nickname;
 
-    @Column(name = "password", nullable = false, length = 30)
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Column(name = "name", nullable = false, length = 50)
@@ -45,7 +45,7 @@ public class User {
     @OneToMany(mappedBy = "creator", orphanRemoval = true)
     private Set<Ticket> tickets = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Subscription> subscriptions = new LinkedHashSet<>();
 
 

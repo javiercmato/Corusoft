@@ -1,9 +1,12 @@
 package com.corusoft.ticketmanager.users.services;
 
 import com.corusoft.ticketmanager.common.exceptions.EntityAlreadyExistsException;
+import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
 import com.corusoft.ticketmanager.users.entities.User;
 import com.corusoft.ticketmanager.users.entities.UserRole;
+import com.corusoft.ticketmanager.users.exceptions.IncorrectLoginException;
 import com.corusoft.ticketmanager.users.repositories.UserRepository;
+import com.corusoft.ticketmanager.users.services.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,8 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepo;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private UserUtils userUtils;
 
 
     /* ******************** FUNCIONALIDADES USUARIO ******************** */
@@ -37,6 +42,30 @@ public class UserServiceImpl implements UserService {
         // Guardar datos y devolver usuario creado
         return userRepo.save(user);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public User login(String nickname, String rawPassword) throws IncorrectLoginException {
+        // Comprobar si el usuario existe
+        User user;
+        try {
+            user = userUtils.fetchUserByNickname(nickname);
+        } catch (EntityNotFoundException ex) {
+            throw new IncorrectLoginException();
+        }
+
+        // Comprobar si las contraseñas coinciden
+        if (!passwordEncoder.matches(rawPassword, user.getPassword()))
+            throw new IncorrectLoginException();
+
+        return user;
+    }
+
+    @Override
+    public User loginFromToken(Long userID) throws EntityNotFoundException {
+        return userUtils.fetchUserByID(userID);
+    }
+
 
 
     /* ******************** FUNCIONES AUXILIARES ******************** */
