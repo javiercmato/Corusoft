@@ -1,8 +1,6 @@
 package com.corusoft.ticketmanager.common.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -46,7 +44,7 @@ public class JwtGeneratorImpl implements JwtGenerator {
 
         // Parsear datos obtenidos del JWT
         Long userID = Long.valueOf(claims.get("userID").toString());
-        String userNickname = claims.get("nickName").toString();
+        String userNickname = claims.get("nickname").toString();
         String userRole = claims.get("role").toString();
 
 

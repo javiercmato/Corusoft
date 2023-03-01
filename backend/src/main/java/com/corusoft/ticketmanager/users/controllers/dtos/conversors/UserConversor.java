@@ -1,8 +1,6 @@
 package com.corusoft.ticketmanager.users.controllers.dtos.conversors;
 
-import com.corusoft.ticketmanager.users.controllers.dtos.AuthenticatedUserDTO;
-import com.corusoft.ticketmanager.users.controllers.dtos.RegisterUserParamsDTO;
-import com.corusoft.ticketmanager.users.controllers.dtos.UserDTO;
+import com.corusoft.ticketmanager.users.controllers.dtos.*;
 import com.corusoft.ticketmanager.users.entities.User;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

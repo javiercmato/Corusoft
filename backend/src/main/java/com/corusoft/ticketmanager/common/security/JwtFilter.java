@@ -21,8 +21,8 @@ import java.util.Set;
 public class JwtFilter extends BasicAuthenticationFilter {
     public static final String AUTH_TOKEN_PREFIX = "Bearer ";
     private static final String ROLE_PREFIX = "ROLE_";
-    private static final String SERVICE_TOKEN_ATTRIBUTE_NAME = "serviceToken";
-    private static final String USER_ID_ATTRIBUTE_NAME = "userID";
+    public static final String SERVICE_TOKEN_ATTRIBUTE_NAME = "serviceToken";
+    public static final String USER_ID_ATTRIBUTE_NAME = "userID";
 
     private final JwtGenerator jwtGenerator;
 

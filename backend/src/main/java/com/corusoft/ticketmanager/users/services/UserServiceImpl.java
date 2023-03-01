@@ -61,6 +61,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public User loginFromToken(Long userID) throws EntityNotFoundException {
         return userUtils.fetchUserByID(userID);

@@ -2,9 +2,7 @@ package com.corusoft.ticketmanager.users.entities;
 
 import com.corusoft.ticketmanager.tickets.entities.Ticket;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;

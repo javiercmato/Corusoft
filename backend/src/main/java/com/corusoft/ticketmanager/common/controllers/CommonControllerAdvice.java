@@ -2,18 +2,13 @@ package com.corusoft.ticketmanager.common.controllers;
 
 import com.corusoft.ticketmanager.common.dtos.ErrorsDTO;
 import com.corusoft.ticketmanager.common.dtos.FieldErrorDTO;
-import com.corusoft.ticketmanager.common.exceptions.EntityAlreadyExistsException;
-import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
-import com.corusoft.ticketmanager.common.exceptions.PermissionException;
+import com.corusoft.ticketmanager.common.exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Locale;
