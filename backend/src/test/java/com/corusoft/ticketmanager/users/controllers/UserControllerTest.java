@@ -4,8 +4,8 @@ import com.corusoft.ticketmanager.common.dtos.ErrorsDTO;
 import com.corusoft.ticketmanager.common.jwt.JwtData;
 import com.corusoft.ticketmanager.common.jwt.JwtGenerator;
 import com.corusoft.ticketmanager.users.controllers.dtos.*;
-import com.corusoft.ticketmanager.users.entities.User;
-import com.corusoft.ticketmanager.users.entities.UserRole;
+import com.corusoft.ticketmanager.users.controllers.dtos.conversors.SubscriptionConversor;
+import com.corusoft.ticketmanager.users.entities.*;
 import com.corusoft.ticketmanager.users.exceptions.IncorrectLoginException;
 import com.corusoft.ticketmanager.users.repositories.UserRepository;
 import com.corusoft.ticketmanager.users.services.UserService;
@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserControllerTest {
     /* ************************* CONSTANTES ************************* */
     private static final String API_ENDPOINT = "/api/users";
-    private final ObjectMapper jsonMapper = new ObjectMapper();
+
     private final Locale locale = Locale.getDefault();
     private final String DEFAULT_NICKNAME = "Foo";
     private final String DEFAULT_PASSWORD = "Bar";
@@ -59,6 +59,8 @@ public class UserControllerTest {
     private UserService userService;
     @Autowired
     private UserController userController;
+    @Autowired
+    private ObjectMapper jsonMapper;
 
 
     /* ************************* MÉTODOS AUXILIARES ************************* */
@@ -136,6 +138,13 @@ public class UserControllerTest {
                 propertyName,
                 locale
         );
+    }
+
+    /* ************************* CICLO VIDA TESTS ************************* */
+    @BeforeEach
+    void beforeEach() {
+        // Limpiar datos guardados de otros test
+        userRepository.deleteAll();
     }
 
     /* ************************* CASOS DE PRUEBA ************************* */
@@ -233,6 +242,32 @@ public class UserControllerTest {
         loginAction.andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
         //.andExpect(content().string(encodedResponseBodyContent));
+    }
+
+    @Test
+    void whenSubscribeToPremium_thenReturnSubscriptionDTO() throws Exception {
+        // Crear datos de prueba
+        User validUser = generateValidUser();
+        AuthenticatedUserDTO authUserDTO = generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
+        JwtData jwtData = jwtGenerator.extractInfoFromToken(authUserDTO.getServiceToken());
+
+        // Ejecutar funcionalidades
+        String endpointAddress = API_ENDPOINT + "/subscribe/" + authUserDTO.getUserDTO().getUserID();
+        ResultActions subscribeAction = mockMvc.perform(
+                post(endpointAddress)
+                        // Valores anotados como @RequestAttribute
+                        .requestAttr(USER_ID_ATTRIBUTE_NAME, jwtData.getUserID())
+                        .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, jwtData.toString())
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authUserDTO.getServiceToken())
+        );
+
+        // Comprobar resultados
+        Subscription subscription = validUser.getSubscriptions().stream().findFirst().get();
+        SubscriptionDTO expectedSubscriptionDTO = SubscriptionConversor.toSubscriptionDTO(subscription);
+        String encodedResponseBodyContent = this.jsonMapper.writeValueAsString(expectedSubscriptionDTO);
+        subscribeAction.andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(encodedResponseBodyContent));
     }
 
 }

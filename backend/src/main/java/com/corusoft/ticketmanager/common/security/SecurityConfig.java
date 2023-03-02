@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()                        // register
                 .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()                           // login
                 .requestMatchers(HttpMethod.POST, "/api/users/login/token").permitAll()                     // loginFromToken
+                .requestMatchers(HttpMethod.POST, "/api/users/subscribe/*").permitAll()                     // subscribeToPremium
 
                 // TICKET ENDPOINTS
 

@@ -58,5 +58,10 @@ public class User {
                 .anyMatch((sub) -> sub.getStatus().equals(SubscriptionStatus.ACTIVE));
     }
 
+    @Transient
+    public void assignSubscription(Subscription subscription) {
+        subscriptions.add(subscription);
+        subscription.setUser(this);
+    }
 
 }

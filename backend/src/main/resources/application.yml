@@ -49,6 +49,8 @@ server:
     context-path: '@project.contextPath@'
 
 project:
+  constants:
+    subscription_length_in_days: 30   # Días que dura una subscripción Premium
   jwt:
     signKey: mySecretSignKeyThatNobodyShouldKnow
     expirationMinutes: 1440       # Minutos en 24 horas

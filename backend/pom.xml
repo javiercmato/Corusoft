@@ -313,6 +313,13 @@
                 <activatedProperties>test</activatedProperties>
             </properties>
 
+            <dependencies>
+                <dependency>
+                    <groupId>com.fasterxml.jackson.datatype</groupId>
+                    <artifactId>jackson-datatype-jsr310</artifactId>
+                </dependency>
+            </dependencies>
+
             <build>
                 <plugins>
                     <!-- Configuración de Jacoco: Cobertura del código -->
