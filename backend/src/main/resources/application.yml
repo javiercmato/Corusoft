@@ -3,6 +3,7 @@ spring:
   profiles:
     # Indica a Spring que use la configuracion asociada al perfil activo actualmente
     active: '@activatedProperties@'
+    default: dev
   datasource:
     tomcat:
       max-active: 8
@@ -38,13 +39,18 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: true
+
 logging:
   level:
     org.springframework.boot: info
+
 server:
   servlet:
     context-path: '@project.contextPath@'
+
 project:
+  constants:
+    subscription_length_in_days: 30   # Días que dura una subscripción Premium
   jwt:
-    signKey: mySecretSignKey
+    signKey: mySecretSignKeyThatNobodyShouldKnow
     expirationMinutes: 1440       # Minutos en 24 horas

@@ -17,6 +17,6 @@ spring:
       max-idle: 2
       remove-abandoned: true
       remove-abandoned-timeout: 5
-    url: jdbc:postgresql://localhost:5431/testing
+    url: "jdbc:postgresql://localhost:5431/testing"
     username: postgres
     password: password

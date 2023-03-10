@@ -29,6 +29,7 @@
         <plugin.failsafe.version>3.0.0-M9</plugin.failsafe.version>
         <plugin.syncdk.version>2.4.0</plugin.syncdk.version>
         <plugin.maven-help.version>3.3.0</plugin.maven-help.version>
+        <plugin.docker.version>1.2.2</plugin.docker.version>
         <dependencies.versions.postgresqldriver>42.5.4</dependencies.versions.postgresqldriver>
         <dependencies.versions.commons-io>2.11.0</dependencies.versions.commons-io>
         <testcontainers.version>1.17.6</testcontainers.version>
@@ -38,6 +39,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+            <version>3.0.3</version>
         </dependency>
 
         <dependency>
@@ -97,10 +99,24 @@
             <artifactId>jakarta.transaction-api</artifactId>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
             <version>${plugin.jjwt.version}</version>
+        </dependency>
+        -->
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
         </dependency>
 
         <dependency>
@@ -120,6 +136,7 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -132,6 +149,7 @@
                 <scope>import</scope>
             </dependency>
         </dependencies>
+
     </dependencyManagement>
 
     <build>
@@ -185,19 +203,58 @@
                 </configuration>
             </plugin>
 
-            <!-- Configuración de la ayuda de Maven -->
+            <!-- Mostrar qué entorno de desarrollo (development, testing) está activo en la fase de compilación -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-help-plugin</artifactId>
                 <version>${plugin.maven-help.version}</version>
                 <executions>
                     <execution>
-                        <!-- Mostrar qué entorno de desarrollo (development, testing o production) está activo en la fase de compilación -->
-                        <id>show-active-profile</id>
-                        <phase>compile</phase>
+                        <id>show-active-profile-build</id>
+                        <phase>initialize</phase>
                         <goals>
                             <goal>active-profiles</goal>
                         </goals>
+                    </execution>
+
+                    <execution>
+                        <id>show-active-profile-clean</id>
+                        <phase>pre-clean</phase>
+                        <goals>
+                            <goal>active-profiles</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Detener todas las bases de datos al ejecutar mvn clean -->
+            <plugin>
+                <groupId>com.dkanejs.maven.plugins</groupId>
+                <artifactId>docker-compose-maven-plugin</artifactId>
+                <version>${plugin.syncdk.version}</version>
+                <executions>
+                    <execution>
+                        <id>stop-dev-database</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>down</goal>
+                        </goals>
+                        <configuration>
+                            <removeOrphans>true</removeOrphans>
+                            <composeFile>${docker-compose.dev.path}</composeFile>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>stop-test-database</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>down</goal>
+                        </goals>
+                        <configuration>
+                            <removeOrphans>true</removeOrphans>
+                            <composeFile>${docker-compose.test.path}</composeFile>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -232,25 +289,14 @@
                             <!-- Arrancar BD de desarrollo al arrancar Spring -->
                             <execution>
                                 <id>up</id>
-                                <phase>test-compile</phase>
+                                <phase>process-sources</phase>
                                 <goals>
                                     <goal>up</goal>
                                 </goals>
                                 <configuration>
                                     <composeFile>${docker-compose.dev.path}</composeFile>
+                                    <removeOrphans>true</removeOrphans>
                                     <detachedMode>true</detachedMode>
-                                </configuration>
-                            </execution>
-
-                            <!-- Apagar BD de pruebas tras acabar los tests -->
-                            <execution>
-                                <id>down</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>down</goal>
-                                </goals>
-                                <configuration>
-                                    <composeFile>${docker-compose.dev.path}</composeFile>
                                 </configuration>
                             </execution>
                         </executions>
@@ -266,6 +312,13 @@
                 <!-- Configurar Spring para usar fichero src/test/resources/application-test.yml -->
                 <activatedProperties>test</activatedProperties>
             </properties>
+
+            <dependencies>
+                <dependency>
+                    <groupId>com.fasterxml.jackson.datatype</groupId>
+                    <artifactId>jackson-datatype-jsr310</artifactId>
+                </dependency>
+            </dependencies>
 
             <build>
                 <plugins>
@@ -318,18 +371,21 @@
                                 <configuration>
                                     <composeFile>${docker-compose.test.path}</composeFile>
                                     <detachedMode>true</detachedMode>
+                                    <removeOrphans>true</removeOrphans>
+                                    <removeVolumes>true</removeVolumes>
                                 </configuration>
                             </execution>
 
                             <!-- Apagar BD de pruebas tras acabar los tests -->
                             <execution>
                                 <id>down</id>
-                                <phase>post-integration-test</phase>
+                                <phase>verify</phase>
                                 <goals>
                                     <goal>down</goal>
                                 </goals>
                                 <configuration>
                                     <composeFile>${docker-compose.test.path}</composeFile>
+                                    <removeOrphans>true</removeOrphans>
                                     <removeVolumes>true</removeVolumes>
                                 </configuration>
                             </execution>
@@ -338,6 +394,7 @@
                 </plugins>
             </build>
         </profile>
+
     </profiles>
 
 </project>
