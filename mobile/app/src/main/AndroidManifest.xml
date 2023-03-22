@@ -23,6 +23,8 @@
         <activity
             android:name=".LogIn" />
         <activity
+            android:name=".AddTicket" />
+        <activity
             android:name=".SignUp" />
         <activity
             android:name=".MainActivity"
