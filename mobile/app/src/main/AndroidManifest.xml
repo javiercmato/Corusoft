@@ -21,6 +21,10 @@
         <activity
             android:name=".Landing" />
         <activity
+            android:name=".LogIn" />
+        <activity
+            android:name=".SignUp" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
