@@ -12,22 +12,7 @@
         android:theme="@style/Theme.TicketManager"
         tools:targetApi="31">
         <activity
-            android:name=".MyTicketsFilter"
-            android:exported="false" />
-        <activity
-            android:name=".MyTickets" />
-        <activity
-            android:name=".LogIn" />
-        <activity
-            android:name=".AddTicket" />
-        <activity
-            android:name=".SignUp" />
-        <activity
-            android:name=".MainActivity" />
-        <activity
-            android:name=".UserProfile" />
-        <activity
-            android:name=".Landing"
+            android:name=".LogIn"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,6 +20,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".SignUp" />
+        <activity
+            android:name=".MyTicketsFilter"
+            android:exported="false" />
+        <activity
+            android:name=".MyTickets" />
+        <activity
+            android:name=".AddTicket" />
+        <activity
+            android:name=".MainActivity" />
+        <activity
+            android:name=".UserProfile" />
+        <activity
+            android:name=".Landing" />
     </application>
 
 </manifest>
