@@ -16,6 +16,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @Embeddable
 public class CustomizedCategoryID implements Serializable {
+
     @Column(table = "customizedcategory", name = "user_id", nullable = false)
     private Long userID;
 

@@ -19,8 +19,8 @@ public class CustomizedCategory {
     @Column(name = "max_waste_limit", nullable = false, precision = 12)
     private Float maxWasteLimit;
 
-
     /* *************** Asociaciones con otras entidades *************** */
+
     @ManyToOne
     @MapsId("userID")
     private User user;
