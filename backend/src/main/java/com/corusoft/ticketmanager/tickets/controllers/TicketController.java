@@ -7,6 +7,7 @@ import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.CategoryCo
 import com.corusoft.ticketmanager.tickets.entities.CustomizedCategory;
 import com.corusoft.ticketmanager.tickets.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,7 @@ public class TicketController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.CREATED)
     public CustomizedCategoryDTO createCustomizedCategory(@RequestAttribute("userID") Long userID,
                                                           @Validated @RequestBody CreateCustomizedCategoryParamsDTO params)
             throws EntityNotFoundException {

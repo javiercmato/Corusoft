@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CustomizedCategoryDTO {
 
-    private String categoryName;
+    private String name;
 
     @NotNull
     @Positive

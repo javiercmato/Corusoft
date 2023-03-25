@@ -1,12 +1,13 @@
 package com.corusoft.ticketmanager.users.controllers;
 
+import com.corusoft.ticketmanager.TestUtils;
 import com.corusoft.ticketmanager.common.dtos.ErrorsDTO;
 import com.corusoft.ticketmanager.common.jwt.JwtData;
 import com.corusoft.ticketmanager.common.jwt.JwtGenerator;
 import com.corusoft.ticketmanager.users.controllers.dtos.*;
 import com.corusoft.ticketmanager.users.controllers.dtos.conversors.SubscriptionConversor;
-import com.corusoft.ticketmanager.users.entities.*;
-import com.corusoft.ticketmanager.users.exceptions.IncorrectLoginException;
+import com.corusoft.ticketmanager.users.entities.Subscription;
+import com.corusoft.ticketmanager.users.entities.User;
 import com.corusoft.ticketmanager.users.repositories.UserRepository;
 import com.corusoft.ticketmanager.users.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,16 +15,13 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Locale;
 
 import static com.corusoft.ticketmanager.common.security.JwtFilter.*;
@@ -48,97 +46,19 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private MessageSource messageSource;
+    private ObjectMapper jsonMapper;
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private TestUtils testUtils;
     @Autowired
     private JwtGenerator jwtGenerator;
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private UserService userService;
-    @Autowired
-    private UserController userController;
-    @Autowired
-    private ObjectMapper jsonMapper;
+
 
 
     /* ************************* MÉTODOS AUXILIARES ************************* */
-
-    /**
-     * Genera datos de un usuario válido.
-     */
-    private User generateValidUser() {
-        User user = new User();
-        user.setNickname(DEFAULT_NICKNAME);
-        user.setPassword(passwordEncoder.encode(DEFAULT_PASSWORD));
-        user.setName("TestUser Name");
-        user.setEmail(user.getNickname().toLowerCase() + "@corusoft.udc");
-        user.setRole(UserRole.USER);
-        user.setRegistered_at(LocalDateTime.now());
-
-        return user;
-    }
-
-    /**
-     * Registra el usuario recibido en el sistema y devuelve sus datos y el token de acceso
-     */
-    private AuthenticatedUserDTO generateAuthenticatedUser(User user) throws IncorrectLoginException {
-        // Guardar al usuario en la BD
-        user.setPassword(passwordEncoder.encode(DEFAULT_PASSWORD));
-        userRepository.save(user);
-
-        // Generar el DTO con los datos del usuario recién creado
-        LoginParamsDTO loginParamsDTO = new LoginParamsDTO();
-        loginParamsDTO.setNickname(user.getNickname());
-        loginParamsDTO.setPassword(DEFAULT_PASSWORD);
-
-        // Iniciar sesión para obtener los datos del usuario y el token
-        return userController.login(loginParamsDTO);
-    }
-
-    /**
-     * Devuelve el DTO necesario para poder registrar a un usuario en el controlador
-     */
-    private RegisterUserParamsDTO generateRegisterParamsDtoFromUser(User user) {
-        RegisterUserParamsDTO dto = new RegisterUserParamsDTO();
-        dto.setNickname(user.getNickname());
-        dto.setRawPassword(user.getPassword());
-        dto.setName(user.getName());
-        dto.setEmail(user.getEmail());
-
-        return dto;
-    }
-
-    /**
-     * Recupera el texto asociado a la propiedad recibida a partir del fichero de I18N en el idioma indicado.
-     */
-    private String getI18NExceptionMessage(String propertyName, Locale locale) {
-        return messageSource.getMessage(
-                propertyName,
-                null,
-                propertyName,
-                locale
-        );
-    }
-
-    /**
-     * Recupera el texto asociado a la propiedad recibida con los parámetros recibidos a partir del fichero de I18N en el idioma indicado.
-     */
-    private String getI18NExceptionMessageWithParams(String propertyName, Locale locale, Object[] args, Class exceptionClass) {
-        String exceptionMessage = messageSource.getMessage(
-                exceptionClass.getSimpleName(), null, exceptionClass.getSimpleName(), locale
-        );
-        // Añadir el mensaje traducido al principio del array de argumentos a traducir
-        Object[] values = new Object[args.length + 1];
-        System.arraycopy(args, 0, values, 1, args.length);
-        return messageSource.getMessage(
-                propertyName,
-                args,
-                propertyName,
-                locale
-        );
-    }
 
     /* ************************* CICLO VIDA TESTS ************************* */
     @BeforeEach
@@ -151,8 +71,8 @@ public class UserControllerTest {
     @Test
     void whenRegister_thenUserIsCreated() throws Exception {
         // Crear datos de prueba
-        User validUser = generateValidUser();
-        RegisterUserParamsDTO paramsDTO = generateRegisterParamsDtoFromUser(validUser);     // Parámetros para registrarse
+        User validUser = testUtils.generateValidUser();
+        RegisterUserParamsDTO paramsDTO = testUtils.generateRegisterParamsDtoFromUser(validUser);     // Parámetros para registrarse
 
         // Ejecutar funcionalidades
         String endpointAddress = API_ENDPOINT + "/register";
@@ -177,8 +97,8 @@ public class UserControllerTest {
     @Test
     void whenLogin_thenReturnAuthenticatedUserDTO() throws Exception {
         // Crear datos de prueba
-        User validUser = generateValidUser();
-        AuthenticatedUserDTO authUserDTO = generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
+        User validUser = testUtils.generateValidUser();
+        AuthenticatedUserDTO authUserDTO = testUtils.generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
         LoginParamsDTO paramsDTO = new LoginParamsDTO(DEFAULT_NICKNAME, DEFAULT_PASSWORD);
 
         // Ejecutar funcionalidades
@@ -211,7 +131,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(encodedBodyContent)
         );
-        String errorMessage = getI18NExceptionMessage(UserController.INCORRECT_LOGIN_EXCEPTION_KEY, locale);
+        String errorMessage = testUtils.getI18NExceptionMessage(UserController.INCORRECT_LOGIN_EXCEPTION_KEY, locale);
 
         // Comprobar resultados
         String encodedResponseBodyContent = this.jsonMapper.writeValueAsString(new ErrorsDTO(errorMessage));
@@ -223,8 +143,8 @@ public class UserControllerTest {
     @Test
     void whenLoginWithToken_thenReturnAuthenticatedUserDTO() throws Exception {
         // Crear datos de prueba
-        User validUser = generateValidUser();
-        AuthenticatedUserDTO authUserDTO = generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
+        User validUser = testUtils.generateValidUser();
+        AuthenticatedUserDTO authUserDTO = testUtils.generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
         JwtData jwtData = jwtGenerator.extractInfoFromToken(authUserDTO.getServiceToken());
 
         // Ejecutar funcionalidades
@@ -247,8 +167,8 @@ public class UserControllerTest {
     @Test
     void whenSubscribeToPremium_thenReturnSubscriptionDTO() throws Exception {
         // Crear datos de prueba
-        User validUser = generateValidUser();
-        AuthenticatedUserDTO authUserDTO = generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
+        User validUser = testUtils.generateValidUser();
+        AuthenticatedUserDTO authUserDTO = testUtils.generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
         JwtData jwtData = jwtGenerator.extractInfoFromToken(authUserDTO.getServiceToken());
 
         // Ejecutar funcionalidades
