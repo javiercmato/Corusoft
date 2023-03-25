@@ -37,4 +37,10 @@ public class UserUtils {
         return userRepo.findByNicknameIgnoreCase(nickname)
                 .orElseThrow(() -> new EntityNotFoundException(User.class.getSimpleName(), nickname));
     }
+    /**
+     * Comprueba si dos usuarios son el mismo comparando sus ID
+     */
+    public boolean doUsersMatch(Long requestUserID, Long targetUserID) {
+        return requestUserID.equals(targetUserID);
+    }
 }

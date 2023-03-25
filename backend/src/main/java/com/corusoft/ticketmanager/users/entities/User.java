@@ -1,5 +1,6 @@
 package com.corusoft.ticketmanager.users.entities;
 
+import com.corusoft.ticketmanager.tickets.entities.CustomizedCategory;
 import com.corusoft.ticketmanager.tickets.entities.Ticket;
 import jakarta.persistence.*;
 import lombok.*;
@@ -46,6 +47,8 @@ public class User {
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Subscription> subscriptions = new LinkedHashSet<>();
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Set<CustomizedCategory> customizedCategories = new LinkedHashSet<>();
 
     /* *************** Métodos de entidad *************** */
 
@@ -58,10 +61,24 @@ public class User {
                 .anyMatch((sub) -> sub.getStatus().equals(SubscriptionStatus.ACTIVE));
     }
 
+    /**
+     * Asignar una subscripción al usuario
+     * @param subscription Subscripción a añadir al usuario
+     */
     @Transient
     public void assignSubscription(Subscription subscription) {
         subscriptions.add(subscription);
         subscription.setUser(this);
+    }
+
+    /**
+     * Asigna una categoría personalizada al usuario
+     * @param customCategory Categoría personalizada a asignar
+     */
+    @Transient
+    public void assignCustomizedCategory(CustomizedCategory customCategory) {
+        customizedCategories.add(customCategory);
+        customCategory.setUser(this);
     }
 
 }
