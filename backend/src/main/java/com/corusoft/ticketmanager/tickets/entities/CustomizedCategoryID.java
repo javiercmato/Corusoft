@@ -21,4 +21,15 @@ public class CustomizedCategoryID implements Serializable {
 
     @Column(table = "customizedcategory", name = "category_id", nullable = false)
     private Long categoryID;
+
+    @Override
+    public String toString() {
+        String sb = "User ID: " +
+                userID +
+                " - " +
+                "Category ID" +
+                categoryID;
+
+        return sb;
+    }
 }

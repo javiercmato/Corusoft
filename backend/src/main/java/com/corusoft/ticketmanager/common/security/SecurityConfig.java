@@ -39,7 +39,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/users/subscribe/*").permitAll()                     // subscribeToPremium
 
                 // TICKET ENDPOINTS
-                .requestMatchers(HttpMethod.POST, "/api/tickets/categories").permitAll()                     // createCustomizedCategory
+                .requestMatchers(HttpMethod.GET, "/api/tickets/categories").permitAll()                     // getAllCategories
+                .requestMatchers(HttpMethod.POST, "/api/tickets/categories").permitAll()                    // createCustomizedCategory
                 .requestMatchers(HttpMethod.PUT, "/api/tickets/categories/*").permitAll()                     // updateCustomizedCategory
 
                 // STATISTICS ENDPOINTS

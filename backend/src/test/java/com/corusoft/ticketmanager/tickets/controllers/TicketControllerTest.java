@@ -3,12 +3,13 @@ package com.corusoft.ticketmanager.tickets.controllers;
 import com.corusoft.ticketmanager.TestUtils;
 import com.corusoft.ticketmanager.common.jwt.JwtData;
 import com.corusoft.ticketmanager.common.jwt.JwtGenerator;
-import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateCustomizedCategoryParamsDTO;
-import com.corusoft.ticketmanager.tickets.controllers.dtos.UpdateCustomizedCategoryParamsDTO;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.*;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.CategoryConversor;
 import com.corusoft.ticketmanager.tickets.entities.Category;
 import com.corusoft.ticketmanager.tickets.entities.CustomizedCategory;
 import com.corusoft.ticketmanager.users.controllers.dtos.AuthenticatedUserDTO;
 import com.corusoft.ticketmanager.users.entities.User;
+import com.corusoft.ticketmanager.users.repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.corusoft.ticketmanager.common.security.JwtFilter.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,6 +47,8 @@ public class TicketControllerTest {
     private TestUtils testUtils;
     @Autowired
     private JwtGenerator jwtGenerator;
+    @Autowired
+    private UserRepository userRepository;
 
 
     /* ************************* MÉTODOS AUXILIARES ************************* */
@@ -95,10 +99,11 @@ public class TicketControllerTest {
     void whenUpdateCustomizedCategory_thenCustomizedCategoryDTO() throws Exception {
         // Crear datos de prueba
         User validUser = testUtils.generateValidUser();
+        // Guardar usuario en BD
+        userRepository.save(validUser);
         Category validCategory = testUtils.registerValidCategory();
-        CustomizedCategory customizedCategory = testUtils.generateCustomizedCategory(validUser, validCategory);
-
         AuthenticatedUserDTO authUserDTO = testUtils.generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
+        CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(validUser, validCategory);
         JwtData jwtData = jwtGenerator.extractInfoFromToken(authUserDTO.getServiceToken());
 
         UpdateCustomizedCategoryParamsDTO paramsDTO = new UpdateCustomizedCategoryParamsDTO();
@@ -120,9 +125,11 @@ public class TicketControllerTest {
         );
 
         // Comprobar resultados
+        CustomizedCategoryDTO expectedResponse = CategoryConversor.toCustomizedCategoryDTO(customizedCategory);
+        String expectedResponseBdoy = this.jsonMapper.writeValueAsString(expectedResponse);
         actions
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(encodedBodyContent));
+                .andExpect(content().string(expectedResponseBdoy));
     }
 }

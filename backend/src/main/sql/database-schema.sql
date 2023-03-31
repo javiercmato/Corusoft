@@ -114,3 +114,16 @@ CREATE TABLE IF NOT EXISTS Subscription (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+
+/* ************************* DATOS POR DEFECTO ************************* */
+-- Datos de categorías (ver https://developers.mindee.com/docs/receipt-ocr#category)
+INSERT INTO Category(name) VALUES ('accommodation');
+INSERT INTO Category(name) VALUES ('food');
+INSERT INTO Category(name) VALUES ('gasoline');
+INSERT INTO Category(name) VALUES ('parking');
+INSERT INTO Category(name) VALUES ('transport');
+INSERT INTO Category(name) VALUES ('toll');
+INSERT INTO Category(name) VALUES ('telecom');
+INSERT INTO Category(name) VALUES ('miscellaneous');
+

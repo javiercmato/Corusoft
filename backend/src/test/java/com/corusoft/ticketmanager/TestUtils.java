@@ -3,6 +3,7 @@ package com.corusoft.ticketmanager;
 import com.corusoft.ticketmanager.tickets.entities.Category;
 import com.corusoft.ticketmanager.tickets.entities.CustomizedCategory;
 import com.corusoft.ticketmanager.tickets.repositories.CategoryRepository;
+import com.corusoft.ticketmanager.tickets.repositories.CustomizedCategoryRepository;
 import com.corusoft.ticketmanager.tickets.services.TicketService;
 import com.corusoft.ticketmanager.users.controllers.UserController;
 import com.corusoft.ticketmanager.users.controllers.dtos.*;
@@ -44,6 +45,8 @@ public class TestUtils {
     private TicketService ticketService;
     @Autowired
     private CategoryRepository categoryRepo;
+    @Autowired
+    private CustomizedCategoryRepository customCategoryRepo;
 
 
     /* ************************* MÉTODOS AUXILIARES ************************* */
@@ -133,13 +136,13 @@ public class TestUtils {
     }
 
     /** Genera datos de una categoría customizada válida. */
-    public CustomizedCategory generateCustomizedCategory(User user, Category category) {
+    public CustomizedCategory registerCustomizedCategory(User user, Category category) {
         CustomizedCategory customCategory = new CustomizedCategory();
         customCategory.setMaxWasteLimit(DEFAULT_CATEGORY_MAX_WASTE_LIMIT);
         customCategory.setCategory(category);
         customCategory.setUser(user);
 
-        return customCategory;
+        return customCategoryRepo.save(customCategory);
     }
 
 }
