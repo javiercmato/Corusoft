@@ -40,7 +40,7 @@ public class SecurityConfig {
 
                 // TICKET ENDPOINTS
                 .requestMatchers(HttpMethod.POST, "/api/tickets/categories").permitAll()                     // createCustomizedCategory
-
+                .requestMatchers(HttpMethod.PUT, "/api/tickets/categories/*").permitAll()                     // updateCustomizedCategory
 
                 // STATISTICS ENDPOINTS
 

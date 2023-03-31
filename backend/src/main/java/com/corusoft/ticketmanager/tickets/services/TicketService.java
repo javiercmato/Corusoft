@@ -8,5 +8,8 @@ public interface TicketService {
     CustomizedCategory createCustomCategory(Long userID, String customCategoryName, Float wasteLimit)
             throws EntityNotFoundException;
 
+    CustomizedCategory updateCustomCategory(Long userID, Long customCategoryID, Float newWasteLimit)
+            throws EntityNotFoundException;
+
 
 }

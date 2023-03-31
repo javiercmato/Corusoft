@@ -132,7 +132,7 @@ public class TestUtils {
         return categoryRepo.save(category);
     }
 
-    /** Genera datos de una categoría válida. */
+    /** Genera datos de una categoría customizada válida. */
     public CustomizedCategory generateCustomizedCategory(User user, Category category) {
         CustomizedCategory customCategory = new CustomizedCategory();
         customCategory.setMaxWasteLimit(DEFAULT_CATEGORY_MAX_WASTE_LIMIT);

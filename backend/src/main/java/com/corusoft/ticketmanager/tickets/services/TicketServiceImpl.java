@@ -3,6 +3,7 @@ package com.corusoft.ticketmanager.tickets.services;
 import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
 import com.corusoft.ticketmanager.tickets.entities.Category;
 import com.corusoft.ticketmanager.tickets.entities.CustomizedCategory;
+import com.corusoft.ticketmanager.tickets.entities.CustomizedCategoryID;
 import com.corusoft.ticketmanager.tickets.repositories.CategoryRepository;
 import com.corusoft.ticketmanager.tickets.repositories.CustomizedCategoryRepository;
 import com.corusoft.ticketmanager.tickets.services.utils.TicketUtils;
@@ -43,6 +44,22 @@ public class TicketServiceImpl implements TicketService {
         user.assignCustomizedCategory(customCategory);
 
         return customCategoryRepo.save(customCategory);
+    }
+
+    @Override
+    public CustomizedCategory updateCustomCategory(Long userID, Long customCategoryID, Float newWasteLimit)
+            throws EntityNotFoundException {
+
+        // Primero comprobamos la existencia del usuario
+        User user = userUtils.fetchUserByID(userID);
+
+        // Luego comprobamos la existencia de la categoría propia y que le pertenezca al usuario.
+        CustomizedCategory customizedCategory = ticketUtils.
+                fetchCustomizedCategoryById(new CustomizedCategoryID(userID, customCategoryID));
+
+        customizedCategory.setMaxWasteLimit(newWasteLimit);
+
+        return customizedCategory;
     }
 
 

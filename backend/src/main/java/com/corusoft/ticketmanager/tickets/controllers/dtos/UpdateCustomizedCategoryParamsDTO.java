@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class CreateCustomizedCategoryParamsDTO {
-
-    @NotBlank
-    private String name;
+public class UpdateCustomizedCategoryParamsDTO {
 
     @Positive
     private Float maxWasteLimit;

@@ -4,7 +4,9 @@ import com.corusoft.ticketmanager.TestUtils;
 import com.corusoft.ticketmanager.common.jwt.JwtData;
 import com.corusoft.ticketmanager.common.jwt.JwtGenerator;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateCustomizedCategoryParamsDTO;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.UpdateCustomizedCategoryParamsDTO;
 import com.corusoft.ticketmanager.tickets.entities.Category;
+import com.corusoft.ticketmanager.tickets.entities.CustomizedCategory;
 import com.corusoft.ticketmanager.users.controllers.dtos.AuthenticatedUserDTO;
 import com.corusoft.ticketmanager.users.entities.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.corusoft.ticketmanager.common.security.JwtFilter.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -87,5 +89,40 @@ public class TicketControllerTest {
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().string(encodedBodyContent));
+    }
+
+    @Test
+    void whenUpdateCustomizedCategory_thenCustomizedCategoryDTO() throws Exception {
+        // Crear datos de prueba
+        User validUser = testUtils.generateValidUser();
+        Category validCategory = testUtils.registerValidCategory();
+        CustomizedCategory customizedCategory = testUtils.generateCustomizedCategory(validUser, validCategory);
+
+        AuthenticatedUserDTO authUserDTO = testUtils.generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
+        JwtData jwtData = jwtGenerator.extractInfoFromToken(authUserDTO.getServiceToken());
+
+        UpdateCustomizedCategoryParamsDTO paramsDTO = new UpdateCustomizedCategoryParamsDTO();
+
+        paramsDTO.setMaxWasteLimit(90F);
+
+        // Ejecutar funcionalidades
+        String endpoint = API_ENDPOINT + "/categories/" + validCategory.getId().toString();
+        String encodedBodyContent = this.jsonMapper.writeValueAsString(paramsDTO);
+
+        ResultActions actions = mockMvc.perform(
+                put(endpoint)
+                        // Valores anotados como @RequestAttribute
+                        .requestAttr(USER_ID_ATTRIBUTE_NAME, jwtData.getUserID())
+                        .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, jwtData.toString())
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authUserDTO.getServiceToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(encodedBodyContent)
+        );
+
+        // Comprobar resultados
+        actions
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(encodedBodyContent));
     }
 }
