@@ -1,8 +1,8 @@
 package com.corusoft.ticketmanager.tickets.services;
 
 import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
-import com.corusoft.ticketmanager.tickets.entities.Category;
-import com.corusoft.ticketmanager.tickets.entities.CustomizedCategory;
+import com.corusoft.ticketmanager.common.exceptions.UnableToParseImageException;
+import com.corusoft.ticketmanager.tickets.entities.*;
 
 import java.util.List;
 
@@ -17,4 +17,6 @@ public interface TicketService {
             throws EntityNotFoundException;
 
     List<CustomizedCategory> getCustomCategoriesByUser(Long userID) throws EntityNotFoundException;
+
+    ParsedTicketData parseTicketContent(String ticketContentAsB64) throws UnableToParseImageException;
 }

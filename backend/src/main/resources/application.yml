@@ -29,6 +29,7 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
   servlet:
     multipart:
@@ -54,3 +55,5 @@ project:
   jwt:
     signKey: mySecretSignKeyThatNobodyShouldKnow
     expirationMinutes: 1440       # Minutos en 24 horas
+  mindee:
+    apiKey: 02a3e46ce01be47679cd3cb0b0bd9780
