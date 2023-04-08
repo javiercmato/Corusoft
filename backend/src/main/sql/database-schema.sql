@@ -44,14 +44,6 @@ CREATE TABLE IF NOT EXISTS CustomizedCategory (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Store (
-    id                  SERIAL,
-    name                VARCHAR(50)     NOT NULL,
-
-    CONSTRAINT PK_Store PRIMARY KEY (id),
-    CONSTRAINT UNIQUE_Store_name UNIQUE (name)
-);
-
 CREATE TABLE IF NOT EXISTS ParsedTicketData (
     id                  SERIAL,
     parsed_at           TIMESTAMP       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
@@ -75,11 +67,12 @@ CREATE TABLE IF NOT EXISTS Ticket (
     registered_at               TIMESTAMP      NOT NULL     DEFAULT CURRENT_TIMESTAMP,
     emitted_at                  TIMESTAMP      NOT NULL,
     amount                      DECIMAL(12, 2) NOT NULL,
-    picture                     BYTEA          NOT NULL,
+    currency                    VARCHAR        NOT NULL,
+    picture                     bytea          NOT NULL,
     creator_id                  INTEGER        NOT NULL,
     custom_category_user_id     INTEGER        NOT NULL,
     custom_category_category_id INTEGER        NOT NULL,
-    store_id                    INTEGER        NOT NULL,
+    store                       VARCHAR        NOT NULL,
     parsed_ticket_id            INTEGER        NOT NULL,
 
     CONSTRAINT PK_Ticket PRIMARY KEY (id),
@@ -90,10 +83,6 @@ CREATE TABLE IF NOT EXISTS Ticket (
     CONSTRAINT FK_Ticket_TO_CustomizedCategory
         FOREIGN KEY (custom_category_user_id, custom_category_category_id) REFERENCES CustomizedCategory (user_id, category_id)
         ON DELETE NO ACTION
-        ON UPDATE CASCADE,
-    CONSTRAINT FK_Ticket_TO_Store
-        FOREIGN KEY (store_id) REFERENCES Store (id)
-        ON DELETE SET NULL
         ON UPDATE CASCADE,
     CONSTRAINT FK_Ticket_TO_ParsedTicketData
         FOREIGN KEY (parsed_ticket_id) REFERENCES ParsedTicketData (id)

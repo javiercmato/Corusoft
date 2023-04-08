@@ -18,7 +18,7 @@ public class TicketManagerApplication {
     @Value("${project.mindee.apiKey}")
     private String mindeeApiKey;
 
-    public static final Path TEMP_PATH = Path.of("temp").toAbsolutePath();
+    public static final Path TEMP_PATH = Path.of("./backend/temp").toAbsolutePath();
 
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(TicketManagerApplication.class);

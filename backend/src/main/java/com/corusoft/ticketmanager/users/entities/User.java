@@ -81,4 +81,14 @@ public class User {
         customCategory.setUser(this);
     }
 
+    /**
+     * Asigna un ticket al usuario actual.
+     * @param ticket - Ticket a asignar
+     */
+    @Transient
+    public void assignTicket(Ticket ticket) {
+        tickets.add(ticket);
+        ticket.setCreator(this);
+    }
+
 }

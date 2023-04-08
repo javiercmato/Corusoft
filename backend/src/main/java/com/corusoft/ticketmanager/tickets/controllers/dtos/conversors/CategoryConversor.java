@@ -13,6 +13,7 @@ public class CategoryConversor {
     /* ******************** Convertir a DTO ******************** */
     public static CustomizedCategoryDTO toCustomizedCategoryDTO(CustomizedCategory entity) {
         CustomizedCategoryDTO dto = new CustomizedCategoryDTO();
+        dto.setId(entity.getId());
         dto.setName(entity.getCategory().getName());
         dto.setMaxWasteLimit(entity.getMaxWasteLimit());
 

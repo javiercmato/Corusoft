@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "ticket")
 public class Ticket {
@@ -29,22 +31,23 @@ public class Ticket {
     @Column(name = "amount", nullable = false, precision = 2)
     private Float amount;
 
-    @Lob
+    @Column(name = "currency", nullable = false)
+    private String currency;
+
     @Column(name = "picture", nullable = false)
     private byte[] picture;
 
+    @Column(name = "store")
+    private String store;
+
 
     /* *************** Asociaciones con otras entidades *************** */
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @JoinColumns({
             @JoinColumn(name = "custom_category_user_id", referencedColumnName = "USER_ID", nullable = false),
             @JoinColumn(name = "custom_category_category_id", referencedColumnName = "CATEGORY_ID", nullable = false)
     })
     private CustomizedCategory customizedCategory;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "store_id", nullable = false)
-    private Store store;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "creator_id", nullable = false)

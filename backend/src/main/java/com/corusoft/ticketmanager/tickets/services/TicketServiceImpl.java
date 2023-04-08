@@ -2,6 +2,7 @@ package com.corusoft.ticketmanager.tickets.services;
 
 import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
 import com.corusoft.ticketmanager.common.exceptions.UnableToParseImageException;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateTicketParamsDTO;
 import com.corusoft.ticketmanager.tickets.entities.*;
 import com.corusoft.ticketmanager.tickets.repositories.*;
 import com.corusoft.ticketmanager.tickets.services.utils.TicketUtils;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -33,6 +35,8 @@ public class TicketServiceImpl implements TicketService {
     private CustomizedCategoryRepository customCategoryRepo;
     @Autowired
     private ParsedTicketDataRepository parsedTicketDataRepo;
+    @Autowired
+    private TicketRepository ticketRepo;
     @Autowired
     private UserUtils userUtils;
     @Autowired
@@ -120,6 +124,40 @@ public class TicketServiceImpl implements TicketService {
         parsedTicket.setTotal_tax(totalTaxes);
 
         parsedTicket.setRegistered_at(LocalDateTime.now());
-        return parsedTicketDataRepo.save(parsedTicket);
+        return parsedTicket;
+    }
+
+    @Override
+    public Ticket createTicket(CreateTicketParamsDTO params) throws EntityNotFoundException, UnableToParseImageException {
+        // Comprobar si existe el usuario
+        User user = userUtils.fetchUserByID(params.getUserID());
+
+        // Comprobar si existe la categoría personalizada
+        CustomizedCategoryID customCategoryID = new CustomizedCategoryID(user.getId(), params.getCategoryID());
+        CustomizedCategory customCategory = ticketUtils.fetchCustomizedCategoryById(customCategoryID);
+
+        // Parsear ticket
+        ParsedTicketData parsedTicketData = this.parseTicketContent(params.getTicketData());
+        parsedTicketDataRepo.save(parsedTicketData);
+        String emmitedAtString = String.format("%sT%s", params.getEmmitedAtDate().toString(), params.getEmmitedAtTime());
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        LocalDateTime emmitedAt = LocalDateTime.parse(emmitedAtString, dateTimeFormatter);
+        byte[] ticketImageAsBytes = ticketUtils.parseImage64StringToBytes(params.getTicketData());
+
+        // Crear ticket
+        Ticket ticket = Ticket.builder()
+                .name(params.getName())
+                .registeredAt(LocalDateTime.now())
+                .emittedAt(emmitedAt)
+                .amount(params.getTotalAmount())
+                .currency(params.getCurrency())
+                .picture(ticketImageAsBytes)
+                .customizedCategory(customCategory)
+                .store(params.getSupplier())
+                .parsedTicketData(parsedTicketData)
+                .build();
+        user.assignTicket(ticket);
+
+        return ticketRepo.save(ticket);
     }
 }

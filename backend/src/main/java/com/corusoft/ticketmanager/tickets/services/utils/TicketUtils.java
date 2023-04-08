@@ -76,7 +76,13 @@ public class TicketUtils {
         }
 
         // Decodificar imagen recibida
-        byte[] pictureBytes = Base64.getDecoder().decode(imageB64DataString);
+        byte[] pictureBytes;
+        try {
+            pictureBytes = Base64.getDecoder().decode(imageB64DataString);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            throw new UnableToParseImageException();
+        }
 
         // Crear fichero con los datos de la imágen
         File imageFile;
@@ -97,5 +103,23 @@ public class TicketUtils {
         }
 
         return imageFile;
+    }
+
+    public byte[] parseImage64StringToBytes(String imageAsB64String) throws UnableToParseImageException {
+        byte[] imageBytes;
+        String imageB64DataString;
+
+        imageB64DataString = imageAsB64String.contains(",") ?
+                imageAsB64String.split(",")[1]
+                : imageAsB64String;
+
+        try {
+            imageBytes = Base64.getDecoder().decode(imageB64DataString);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            throw new UnableToParseImageException();
+        }
+
+        return imageBytes;
     }
 }

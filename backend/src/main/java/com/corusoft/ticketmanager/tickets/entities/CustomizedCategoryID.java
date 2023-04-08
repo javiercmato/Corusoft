@@ -24,11 +24,8 @@ public class CustomizedCategoryID implements Serializable {
 
     @Override
     public String toString() {
-        String sb = "User ID: " +
-                userID +
-                " - " +
-                "Category ID" +
-                categoryID;
+        String sb = "UserID: " + userID + "; " +
+                "CategoryID: " + categoryID + "; ";
 
         return sb;
     }

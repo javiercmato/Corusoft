@@ -2,13 +2,13 @@ package com.corusoft.ticketmanager.tickets.controllers;
 
 import com.corusoft.ticketmanager.common.dtos.ErrorsDTO;
 import com.corusoft.ticketmanager.common.dtos.GenericValueDTO;
-import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
-import com.corusoft.ticketmanager.common.exceptions.UnableToParseImageException;
+import com.corusoft.ticketmanager.common.exceptions.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.CategoryConversor;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.TicketConversor;
 import com.corusoft.ticketmanager.tickets.entities.*;
 import com.corusoft.ticketmanager.tickets.services.TicketService;
+import com.corusoft.ticketmanager.users.services.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -25,6 +25,8 @@ public class TicketController {
     /* ******************** DEPENDENCIAS ******************** */
     @Autowired
     private MessageSource messageSource;
+    @Autowired
+    private UserUtils userUtils;
     @Autowired
     private TicketService ticketService;
 
@@ -77,7 +79,6 @@ public class TicketController {
                                                           @PathVariable("categoryID") Long categoryID,
                                                           @Validated @RequestBody UpdateCustomizedCategoryParamsDTO params)
             throws EntityNotFoundException {
-
         // Actualizar la categoría customizada
         CustomizedCategory customCategory = ticketService.updateCustomCategory(userID,
                 categoryID, params.getMaxWasteLimit());
@@ -98,6 +99,25 @@ public class TicketController {
         ParsedTicketData parsedTicket = ticketService.parseTicketContent(imageB64String);
 
         return TicketConversor.toParsedTicketDTO(parsedTicket);
+    }
+
+    @PostMapping(path = "/",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public TicketDTO createTicket(@RequestAttribute("userID") Long userID,
+                                  @Validated @RequestBody CreateTicketParamsDTO params)
+            throws EntityNotFoundException, UnableToParseImageException, PermissionException {
+        // Comprobar que el usuario actual y el usuario que solicita la operación son el mismo
+        if (!userUtils.doUsersMatch(userID, params.getUserID()))
+            throw new PermissionException();
+
+        // Crear ticket
+        Ticket createdTicket = ticketService.createTicket(params);
+
+        return TicketConversor.toTicketDTO(createdTicket);
     }
 
     /* ******************** FUNCIONES AUXILIARES ******************** */
