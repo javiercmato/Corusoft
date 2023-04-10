@@ -1,6 +1,8 @@
 package com.corusoft.ticketmanager.tickets.services;
 
 import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
+import com.corusoft.ticketmanager.common.exceptions.PermissionException;
+import com.corusoft.ticketmanager.common.exceptions.TicketAlreadySharedException;
 import com.corusoft.ticketmanager.common.exceptions.UnableToParseImageException;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateTicketParamsDTO;
 import com.corusoft.ticketmanager.tickets.entities.*;
@@ -159,5 +161,33 @@ public class TicketServiceImpl implements TicketService {
         user.assignTicket(ticket);
 
         return ticketRepo.save(ticket);
+    }
+
+    @Override
+    public void shareTicket(Long userId, Long ticketId, String receiverName) throws EntityNotFoundException,
+            TicketAlreadySharedException, PermissionException {
+
+        //Comprobar si existe el usuario dueño y el ticket existen.
+        User owner = userUtils.fetchUserByID(userId);
+        Ticket ticket = ticketUtils.fetchTicketById(ticketId);
+
+        //Comprobar que el usuario sea el dueño del ticket.
+        if(ticket.getCreator() != owner) {throw new PermissionException();}
+
+        //Comprobar que el recibidor existe
+        User receiver = userUtils.fetchUserByNickname(receiverName);
+
+        //El que lo recibe no puede ser el dueño.
+        if(ticket.getCreator() == receiver) {throw new TicketAlreadySharedException(
+                Ticket.class.getSimpleName(), receiverName);}
+
+        //El que lo recibe no puede haberlo recibido ya.
+        if(receiver.getSharedTickets().contains(ticket)) {throw new TicketAlreadySharedException(
+                TicketService.class.getSimpleName(), receiverName
+        );}
+
+        //Compartimos el ticket al recibidor.
+        receiver.shareTicket(ticket);
+
     }
 }

@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/tickets/categories/*").permitAll()                   // updateCustomizedCategory
                 .requestMatchers(HttpMethod.POST, "/api/tickets/parse").permitAll()                         // parseTicket
                 .requestMatchers(HttpMethod.POST, "/api/tickets/").permitAll()                              // createTicket
+                .requestMatchers(HttpMethod.POST, "/api/tickets/share/*").permitAll()                       // shareTicket
 
                 // STATISTICS ENDPOINTS
 

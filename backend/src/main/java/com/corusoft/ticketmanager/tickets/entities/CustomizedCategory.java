@@ -10,6 +10,7 @@ import lombok.*;
 @Entity
 @Table(name = "customizedcategory")
 public class CustomizedCategory {
+
     @EmbeddedId
     private CustomizedCategoryID id = new CustomizedCategoryID();
 

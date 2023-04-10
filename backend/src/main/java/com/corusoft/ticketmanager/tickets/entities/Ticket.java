@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -56,5 +58,18 @@ public class Ticket {
     @OneToOne(optional = false, orphanRemoval = true)
     @JoinColumn(name = "parsed_ticket_id", nullable = false, unique = true)
     private ParsedTicketData parsedTicketData;
+
+    @ManyToMany(mappedBy = "sharedTickets")
+    private Set<User> sharedUsers = new LinkedHashSet<>();
+
+    /* *************** Métodos de entidad *************** */
+
+    /**
+     * Añadir un usuario a la lista de usuarios compartidos.
+     * @param user
+     */
+    public void sharedUsers(User user) {
+        this.sharedUsers.add(user);
+    }
 
 }

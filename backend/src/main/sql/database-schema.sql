@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS Subscription;
+DROP TABLE IF EXISTS TicketReceived;
 DROP TABLE IF EXISTS Ticket;
 DROP TABLE IF EXISTS ParsedTicketData;
 DROP TABLE IF EXISTS Store;
@@ -86,6 +87,22 @@ CREATE TABLE IF NOT EXISTS Ticket (
         ON UPDATE CASCADE,
     CONSTRAINT FK_Ticket_TO_ParsedTicketData
         FOREIGN KEY (parsed_ticket_id) REFERENCES ParsedTicketData (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS TicketReceived (
+
+    receiver_id BIGINT NOT NULL,
+    ticket_id BIGINT NOT NULL,
+
+    CONSTRAINT PK_TicketReceived PRIMARY KEY (receiver_id, ticket_id),
+    CONSTRAINT FK_TicketReceived_TO_UserTable
+        FOREIGN KEY (receiver_id) REFERENCES UserTable (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT FK_TicketReceived_TO_TicketTable
+        FOREIGN KEY (ticket_id) REFERENCES Ticket (id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );

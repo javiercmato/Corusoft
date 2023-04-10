@@ -5,8 +5,10 @@ import com.corusoft.ticketmanager.common.jwt.JwtData;
 import com.corusoft.ticketmanager.common.jwt.JwtGenerator;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.CategoryConversor;
-import com.corusoft.ticketmanager.tickets.entities.Category;
-import com.corusoft.ticketmanager.tickets.entities.CustomizedCategory;
+import com.corusoft.ticketmanager.tickets.entities.*;
+import com.corusoft.ticketmanager.tickets.repositories.CategoryRepository;
+import com.corusoft.ticketmanager.tickets.repositories.CustomizedCategoryRepository;
+import com.corusoft.ticketmanager.tickets.repositories.TicketRepository;
 import com.corusoft.ticketmanager.users.controllers.dtos.AuthenticatedUserDTO;
 import com.corusoft.ticketmanager.users.entities.User;
 import com.corusoft.ticketmanager.users.repositories.UserRepository;
@@ -49,6 +51,10 @@ public class TicketControllerTest {
     private JwtGenerator jwtGenerator;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TicketRepository ticketRepository;
+    @Autowired
+    private CustomizedCategoryRepository categoryRepository;
 
 
     /* ************************* MÉTODOS AUXILIARES ************************* */
@@ -75,9 +81,15 @@ public class TicketControllerTest {
         paramsDTO.setName(validCategory.getName());
         paramsDTO.setMaxWasteLimit(testUtils.DEFAULT_CATEGORY_MAX_WASTE_LIMIT);
 
+        CustomizedCategoryDTO customizedCategoryDTO = new CustomizedCategoryDTO();
+        customizedCategoryDTO.setId(new CustomizedCategoryID(validUser.getId(), validCategory.getId()));
+        customizedCategoryDTO.setName(validCategory.getName());
+        customizedCategoryDTO.setMaxWasteLimit(testUtils.DEFAULT_CATEGORY_MAX_WASTE_LIMIT);
+
         // Ejecutar funcionalidades
         String endpoint = API_ENDPOINT + "/categories";
         String encodedBodyContent = this.jsonMapper.writeValueAsString(paramsDTO);
+        String expectedContent = this.jsonMapper.writeValueAsString(customizedCategoryDTO);
         ResultActions actions = mockMvc.perform(
             post(endpoint)
                 // Valores anotados como @RequestAttribute
@@ -92,7 +104,7 @@ public class TicketControllerTest {
         actions
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(content().string(encodedBodyContent));
+            .andExpect(content().string(expectedContent));
     }
 
     @Test
@@ -112,6 +124,9 @@ public class TicketControllerTest {
 
         // Ejecutar funcionalidades
         String endpoint = API_ENDPOINT + "/categories/" + validCategory.getId().toString();
+        CustomizedCategoryDTO customizedCategoryDTO = new CustomizedCategoryDTO();
+        customizedCategoryDTO.setMaxWasteLimit(paramsDTO.getMaxWasteLimit());
+
         String encodedBodyContent = this.jsonMapper.writeValueAsString(paramsDTO);
 
         ResultActions actions = mockMvc.perform(
@@ -131,5 +146,47 @@ public class TicketControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(expectedResponseBdoy));
+    }
+
+    @Test
+    void whenShareTicket_thenVoid() throws Exception {
+        // Crear datos de prueba
+        User validUser = testUtils.generateValidUser();
+        User validUser2 = testUtils.generateValidUser();
+        validUser2.setNickname("Other");
+        validUser2.setEmail("OtherEmail");
+        userRepository.save(validUser);
+        userRepository.save(validUser2);
+        // Guardar usuario en BD
+        Category validCategory = testUtils.registerValidCategory();
+        CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(validUser,validCategory);
+        ParsedTicketData parsedTicketData = testUtils.registerParseTicket();
+        Ticket ticket = testUtils.registerTicket(customizedCategory, validUser, parsedTicketData);
+
+        AuthenticatedUserDTO authUserDTO = testUtils.generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
+        JwtData jwtData = jwtGenerator.extractInfoFromToken(authUserDTO.getServiceToken());
+
+        ShareParamsDTO shareParamsDTO = new ShareParamsDTO();
+
+        shareParamsDTO.setReceiverName("Other");
+
+        // Ejecutar funcionalidades
+        String endpoint = API_ENDPOINT + "/share/" + ticket.getId().toString();
+
+        String encodedBodyContent = this.jsonMapper.writeValueAsString(shareParamsDTO);
+
+        ResultActions actions = mockMvc.perform(
+                post(endpoint)
+                        // Valores anotados como @RequestAttribute
+                        .requestAttr(USER_ID_ATTRIBUTE_NAME, jwtData.getUserID())
+                        .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, jwtData.toString())
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authUserDTO.getServiceToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(encodedBodyContent)
+        );
+
+        // Comprobar resultados, como devuelve un void , debería devolver un created
+       actions
+                .andExpect(status().isCreated());
     }
 }

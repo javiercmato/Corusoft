@@ -5,6 +5,7 @@ import com.corusoft.ticketmanager.common.exceptions.UnableToParseImageException;
 import com.corusoft.ticketmanager.tickets.entities.*;
 import com.corusoft.ticketmanager.tickets.repositories.CategoryRepository;
 import com.corusoft.ticketmanager.tickets.repositories.CustomizedCategoryRepository;
+import com.corusoft.ticketmanager.tickets.repositories.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,9 @@ public class TicketUtils {
 
     @Autowired
     private CustomizedCategoryRepository customizedCategoryRepo;
+
+    @Autowired
+    private TicketRepository ticketRepo;
 
     /**
      * Busca una categoría por su nombre en la base de datos.
@@ -121,5 +125,17 @@ public class TicketUtils {
         }
 
         return imageBytes;
+    }
+
+    /**
+     * Busca un Ticket en la base de datos.
+     *
+     * @param ticketID del ticket a buscar.
+     * @return Ticket encontrado.
+     * @throws EntityNotFoundException si no se encuentra el ticket.
+     */
+    public Ticket fetchTicketById(Long ticketID) throws EntityNotFoundException {
+        return ticketRepo.findById(ticketID).orElseThrow(
+                () -> new EntityNotFoundException(Ticket.class.getSimpleName(), ticketID));
     }
 }

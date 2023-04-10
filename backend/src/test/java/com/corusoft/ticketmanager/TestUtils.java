@@ -2,8 +2,12 @@ package com.corusoft.ticketmanager;
 
 import com.corusoft.ticketmanager.tickets.entities.Category;
 import com.corusoft.ticketmanager.tickets.entities.CustomizedCategory;
+import com.corusoft.ticketmanager.tickets.entities.ParsedTicketData;
+import com.corusoft.ticketmanager.tickets.entities.Ticket;
 import com.corusoft.ticketmanager.tickets.repositories.CategoryRepository;
 import com.corusoft.ticketmanager.tickets.repositories.CustomizedCategoryRepository;
+import com.corusoft.ticketmanager.tickets.repositories.ParsedTicketDataRepository;
+import com.corusoft.ticketmanager.tickets.repositories.TicketRepository;
 import com.corusoft.ticketmanager.tickets.services.TicketService;
 import com.corusoft.ticketmanager.users.controllers.UserController;
 import com.corusoft.ticketmanager.users.controllers.dtos.*;
@@ -12,11 +16,14 @@ import com.corusoft.ticketmanager.users.entities.UserRole;
 import com.corusoft.ticketmanager.users.exceptions.IncorrectLoginException;
 import com.corusoft.ticketmanager.users.repositories.UserRepository;
 import com.corusoft.ticketmanager.users.services.UserService;
+import jakarta.persistence.Column;
+import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
@@ -47,6 +54,10 @@ public class TestUtils {
     private CategoryRepository categoryRepo;
     @Autowired
     private CustomizedCategoryRepository customCategoryRepo;
+    @Autowired
+    private TicketRepository ticketRepo;
+    @Autowired
+    private ParsedTicketDataRepository parsedTicketDataRepo;
 
 
     /* ************************* MÉTODOS AUXILIARES ************************* */
@@ -143,6 +154,40 @@ public class TestUtils {
         customCategory.setUser(user);
 
         return customCategoryRepo.save(customCategory);
+    }
+
+    // Función para devolver un ticket ya guardado en base de datos.
+    public Ticket registerTicket(CustomizedCategory customizedCategory, User user, ParsedTicketData parsedTicketData) {
+        Ticket ticket = new Ticket();
+        ticket.setName("Ticket");
+        ticket.setRegisteredAt(LocalDateTime.now());
+        ticket.setEmittedAt(LocalDateTime.now());
+        ticket.setAmount(0F);
+        ticket.setCurrency("Currency");
+        byte[] data = new byte[1/2];
+        ticket.setPicture(data);
+        ticket.setStore("store");
+        ticket.setCreator(user);
+        ticket.setCustomizedCategory(customizedCategory);
+        ticket.setParsedTicketData(parsedTicketData);
+        return ticketRepo.save(ticket);
+    }
+
+    // Función para devolver un parsedticket ya almacenado en base de datos.
+    public ParsedTicketData registerParseTicket() {
+
+        ParsedTicketData parsedTicketData = new ParsedTicketData();
+        parsedTicketData.setLanguage("en");
+        parsedTicketData.setCurrency("$");
+        parsedTicketData.setTotal_tax(6F);
+        parsedTicketData.setTotal_amount(100F);
+        parsedTicketData.setEmitted_at_time("h");
+        parsedTicketData.setSubcategory("subcategory");
+        parsedTicketData.setCategory("category");
+        parsedTicketData.setSupplier("supplier");
+        parsedTicketData.setRegistered_at(LocalDateTime.now());
+        return parsedTicketDataRepo.save(parsedTicketData);
+
     }
 
 }

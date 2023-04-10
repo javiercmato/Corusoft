@@ -40,6 +40,7 @@ public class User {
     private LocalDateTime registered_at;
 
 
+
     /* *************** Asociaciones con otras entidades *************** */
     @OneToMany(mappedBy = "creator", orphanRemoval = true)
     private Set<Ticket> tickets = new LinkedHashSet<>();
@@ -49,6 +50,13 @@ public class User {
 
     @OneToMany(mappedBy = "user", orphanRemoval = true)
     private Set<CustomizedCategory> customizedCategories = new LinkedHashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "TicketReceived",
+        joinColumns = @JoinColumn(name = "receiver_id"),
+        inverseJoinColumns = @JoinColumn(name = "ticket_id"))
+    private Set<Ticket> sharedTickets = new LinkedHashSet<>();
 
     /* *************** Métodos de entidad *************** */
 
@@ -89,6 +97,16 @@ public class User {
     public void assignTicket(Ticket ticket) {
         tickets.add(ticket);
         ticket.setCreator(this);
+    }
+
+    /**
+     * Comparte un Ticket a este usuario.
+     * @param ticket - Ticket a compartir
+     */
+    @Transient
+    public void shareTicket(Ticket ticket) {
+        sharedTickets.add(ticket);
+        ticket.sharedUsers(this);
     }
 
 }

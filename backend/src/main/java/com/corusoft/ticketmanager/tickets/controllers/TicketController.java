@@ -33,6 +33,7 @@ public class TicketController {
 
     /* ******************** TRADUCCIONES DE EXCEPCIONES ******************** */
     public static final String UNABLE_TO_PARSE_IMAGE_EXCEPTION_KEY = "tickets.exceptions.UnableToParseImageException";
+    public static final String TICKET_ALREADY_SHARED_EXCEPTION_KEY = "tickets.exceptions.TicketAlreadySharedException";
 
     /* ******************** MANEJADORES DE EXCEPCIONES ******************** */
     @ExceptionHandler(UnableToParseImageException.class)
@@ -45,6 +46,15 @@ public class TicketController {
         return new ErrorsDTO(errorMessage);
     }
 
+    @ExceptionHandler(TicketAlreadySharedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorsDTO handleTicketAlreadySharedException(TicketAlreadySharedException exception, Locale locale) {
+        String errorMessage = messageSource.getMessage(
+                TICKET_ALREADY_SHARED_EXCEPTION_KEY, null, TICKET_ALREADY_SHARED_EXCEPTION_KEY, locale);
+
+        return new ErrorsDTO(errorMessage);
+    }
     /* ******************** ENDPOINTS ******************** */
     @GetMapping(path = "/categories",
         produces = MediaType.APPLICATION_JSON_VALUE
@@ -120,6 +130,20 @@ public class TicketController {
         return TicketConversor.toTicketDTO(createdTicket);
     }
 
+    @PostMapping(path = "/share/{ticketId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public void shareTicket(@RequestAttribute("userID") Long userID,
+                                  @PathVariable("ticketId") Long ticketId,
+                                  @Validated @RequestBody ShareParamsDTO params)
+            throws EntityNotFoundException, TicketAlreadySharedException, PermissionException {
+
+        ticketService.shareTicket(userID, ticketId, params.getReceiverName());
+
+    }
     /* ******************** FUNCIONES AUXILIARES ******************** */
 
 
