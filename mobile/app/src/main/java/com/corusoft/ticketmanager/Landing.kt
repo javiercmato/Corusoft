@@ -1,11 +1,9 @@
 package com.corusoft.ticketmanager
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.util.Log
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class Landing : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

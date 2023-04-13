@@ -11,7 +11,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class BottomBarFragment : Fragment() {
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflar el archivo de diseño del Fragment
         val view = inflater.inflate(R.layout.fragment_bottom_bar, container, false)
         // Configurar el BottomNavigationView u otros elementos aquí si es necesario
@@ -42,7 +46,8 @@ class BottomBarFragment : Fragment() {
                 }
                 R.id.page_4 -> {
                     Log.d("BottomNavigation", "Pulsado botón 4")
-                    // Lógica para cambiar a la página 4
+                    val intent = Intent(requireActivity(), AddTicket::class.java)
+                    startActivity(intent)
                 }
                 R.id.page_5 -> {
                     Log.d("BottomNavigation", "Pulsado botón profile")
