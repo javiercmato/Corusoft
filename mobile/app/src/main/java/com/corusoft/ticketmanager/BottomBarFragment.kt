@@ -42,7 +42,8 @@ class BottomBarFragment : Fragment() {
                 }
                 R.id.page_4 -> {
                     Log.d("BottomNavigation", "Pulsado botón 4")
-                    // Lógica para cambiar a la página 4
+                    val intent = Intent(requireActivity(), AddTicket::class.java)
+                    startActivity(intent)
                 }
                 R.id.page_5 -> {
                     Log.d("BottomNavigation", "Pulsado botón profile")
