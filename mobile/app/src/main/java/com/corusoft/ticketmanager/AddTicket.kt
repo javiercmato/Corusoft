@@ -1,11 +1,10 @@
 package com.corusoft.ticketmanager
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.util.LogPrinter
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 
 class AddTicket : AppCompatActivity() {
 
@@ -16,7 +15,7 @@ class AddTicket : AppCompatActivity() {
 
     fun addTicket(view: View) {
         Log.d("addTicket", "Button add ticket")
-        val intent = Intent(this, AddTicket::class.java )
+        val intent = Intent(this, AddTicket::class.java)
         startActivity(intent);
     }
 

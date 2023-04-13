@@ -11,7 +11,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class BottomBarFragment : Fragment() {
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflar el archivo de diseño del Fragment
         val view = inflater.inflate(R.layout.fragment_bottom_bar, container, false)
         // Configurar el BottomNavigationView u otros elementos aquí si es necesario
