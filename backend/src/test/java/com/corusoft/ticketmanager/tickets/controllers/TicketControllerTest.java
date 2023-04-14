@@ -1,6 +1,7 @@
 package com.corusoft.ticketmanager.tickets.controllers;
 
 import com.corusoft.ticketmanager.TestUtils;
+import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
 import com.corusoft.ticketmanager.common.jwt.JwtData;
 import com.corusoft.ticketmanager.common.jwt.JwtGenerator;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.*;
@@ -11,6 +12,7 @@ import com.corusoft.ticketmanager.tickets.repositories.CustomizedCategoryReposit
 import com.corusoft.ticketmanager.tickets.repositories.TicketRepository;
 import com.corusoft.ticketmanager.users.controllers.dtos.AuthenticatedUserDTO;
 import com.corusoft.ticketmanager.users.entities.User;
+import com.corusoft.ticketmanager.users.exceptions.IncorrectLoginException;
 import com.corusoft.ticketmanager.users.repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
@@ -24,9 +26,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
+
 import static com.corusoft.ticketmanager.common.security.JwtFilter.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -188,5 +192,37 @@ public class TicketControllerTest {
         // Comprobar resultados, como devuelve un void , debería devolver un created
        actions
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void whenGetSpendingsPerMonth_thenSpendingsPerMonth() throws Exception {
+
+        User user = userRepository.save(testUtils.generateValidUser());
+        Category category = testUtils.registerValidCategory();
+        CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(user, category);
+        ParsedTicketData parsedTicketData = testUtils.registerParseTicket();
+        Ticket ticket = testUtils.registerTicket(customizedCategory, user, parsedTicketData);
+        Ticket ticket1 = testUtils.registerTicket(customizedCategory, user, parsedTicketData);
+        ticket1.setRegisteredAt(LocalDateTime.now().plusMonths(1));
+        ticketRepository.save(ticket1);
+
+        AuthenticatedUserDTO authUserDTO = testUtils.generateAuthenticatedUser(user);
+        JwtData jwtData = jwtGenerator.extractInfoFromToken(authUserDTO.getServiceToken());
+
+        String endpoint = API_ENDPOINT + "/spendingsPerMonth" ;
+
+        ResultActions actions = mockMvc.perform(
+                get(endpoint)
+                        // Valores anotados como @RequestAttribute
+                        .requestAttr(USER_ID_ATTRIBUTE_NAME, jwtData.getUserID())
+                        .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, jwtData.toString())
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authUserDTO.getServiceToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        actions
+                .andExpect(status().isOk());
+
+
     }
 }

@@ -144,6 +144,19 @@ public class TicketController {
         ticketService.shareTicket(userID, ticketId, params.getReceiverName());
 
     }
+
+    @GetMapping(path = "/spendingsPerMonth",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<SpendingPerMonthsDTO> getSpendingsPerMonth(@RequestAttribute("userID") Long userID)
+            throws EntityNotFoundException {
+
+        return ticketService.getUserSpendingsPerMonth(userID);
+
+    }
     /* ******************** FUNCIONES AUXILIARES ******************** */
 
 

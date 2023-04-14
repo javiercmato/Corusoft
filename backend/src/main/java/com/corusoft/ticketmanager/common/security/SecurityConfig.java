@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/tickets/parse").permitAll()                         // parseTicket
                 .requestMatchers(HttpMethod.POST, "/api/tickets/").permitAll()                              // createTicket
                 .requestMatchers(HttpMethod.POST, "/api/tickets/share/*").permitAll()                       // shareTicket
-
+                .requestMatchers(HttpMethod.GET, "api/tickets/spendingsPerMonth").permitAll()
                 // STATISTICS ENDPOINTS
 
                 // DENEGAR EL RESTO DE PETICIONES

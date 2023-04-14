@@ -1,5 +1,7 @@
 package com.corusoft.ticketmanager;
 
+import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.SpendingPerMonthsDTO;
 import com.corusoft.ticketmanager.tickets.entities.Category;
 import com.corusoft.ticketmanager.tickets.entities.CustomizedCategory;
 import com.corusoft.ticketmanager.tickets.entities.ParsedTicketData;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Locale;
 
 @Component
@@ -190,4 +193,9 @@ public class TestUtils {
 
     }
 
+    //Función para recuperar los datos de stats del servicio.
+
+    public List<SpendingPerMonthsDTO> getSpendingsPerMonth(Long userId) throws EntityNotFoundException {
+        return ticketService.getUserSpendingsPerMonth(userId);
+    }
 }

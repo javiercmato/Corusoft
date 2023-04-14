@@ -5,8 +5,10 @@ import com.corusoft.ticketmanager.common.exceptions.PermissionException;
 import com.corusoft.ticketmanager.common.exceptions.TicketAlreadySharedException;
 import com.corusoft.ticketmanager.common.exceptions.UnableToParseImageException;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateTicketParamsDTO;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.SpendingPerMonthsDTO;
 import com.corusoft.ticketmanager.tickets.entities.*;
 import com.corusoft.ticketmanager.tickets.repositories.*;
+import com.corusoft.ticketmanager.tickets.services.utils.Spendings;
 import com.corusoft.ticketmanager.tickets.services.utils.TicketUtils;
 import com.corusoft.ticketmanager.users.entities.User;
 import com.corusoft.ticketmanager.users.services.utils.UserUtils;
@@ -23,7 +25,9 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -189,5 +193,37 @@ public class TicketServiceImpl implements TicketService {
         //Compartimos el ticket al recibidor.
         receiver.shareTicket(ticket);
 
+    }
+
+    @Override
+    public List<SpendingPerMonthsDTO> getUserSpendingsPerMonth(Long userId) throws EntityNotFoundException {
+
+        User user = userUtils.fetchUserByID(userId);
+
+        List<Spendings> spendingsPerMonths = ticketRepo.findUserSpendings(user.getId());
+        List<SpendingPerMonthsDTO> spendingPerMonthsDTOS = new ArrayList<>();
+
+        Month month = null;
+        SpendingPerMonthsDTO currentSpendingDTO = null;
+
+        if(!spendingsPerMonths.isEmpty()) {
+
+            month = spendingsPerMonths.get(0).getDate().getMonth();
+            spendingPerMonthsDTOS.add(new SpendingPerMonthsDTO(month.toString()));
+
+            for (Spendings s: spendingsPerMonths) {
+
+                if(month == s.getDate().getMonth()) {
+                    currentSpendingDTO = spendingPerMonthsDTOS.get(spendingPerMonthsDTOS.size()-1);
+                    currentSpendingDTO.setSpendAmount(s.getSpendings());
+                } else {
+                    month = s.getDate().getMonth();
+                    spendingPerMonthsDTOS.add(new SpendingPerMonthsDTO(Month.of(
+                            s.getDate().getMonthValue()).toString(), s.getSpendings()));
+                }
+            }
+        }
+
+        return spendingPerMonthsDTOS;
     }
 }
