@@ -1,11 +1,7 @@
 package com.corusoft.ticketmanager.tickets.services;
 
-import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
-import com.corusoft.ticketmanager.common.exceptions.PermissionException;
-import com.corusoft.ticketmanager.common.exceptions.TicketAlreadySharedException;
-import com.corusoft.ticketmanager.common.exceptions.UnableToParseImageException;
+import com.corusoft.ticketmanager.common.exceptions.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateTicketParamsDTO;
-import com.corusoft.ticketmanager.tickets.controllers.dtos.SpendingPerMonthsDTO;
 import com.corusoft.ticketmanager.tickets.entities.*;
 
 import java.util.List;
@@ -26,9 +22,6 @@ public interface TicketService {
 
     Ticket createTicket(CreateTicketParamsDTO params) throws EntityNotFoundException, UnableToParseImageException;
 
-    void shareTicket(Long userId, Long ticketId, String receiverName) throws EntityNotFoundException, TicketAlreadySharedException,
+    Ticket shareTicket(Long userId, Long ticketId, Long receiverID) throws EntityNotFoundException, TicketAlreadySharedException,
             PermissionException;
-
-    List<SpendingPerMonthsDTO> getUserSpendingsPerMonth(Long userId) throws EntityNotFoundException;
-
 }

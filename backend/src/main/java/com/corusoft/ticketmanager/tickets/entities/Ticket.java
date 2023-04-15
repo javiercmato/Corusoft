@@ -60,7 +60,7 @@ public class Ticket {
     private ParsedTicketData parsedTicketData;
 
     @ManyToMany(mappedBy = "sharedTickets")
-    private Set<User> sharedUsers = new LinkedHashSet<>();
+    private Set<User> receivers = new LinkedHashSet<>();
 
     /* *************** Métodos de entidad *************** */
 
@@ -68,8 +68,15 @@ public class Ticket {
      * Añadir un usuario a la lista de usuarios compartidos.
      * @param user
      */
-    public void sharedUsers(User user) {
-        this.sharedUsers.add(user);
+    @Transient
+    public void shareWithUser(User user) {
+        if (this.receivers == null) {
+            this.receivers = new LinkedHashSet<>();
+        }
+
+        this.receivers.add(user);
+        user.getSharedTickets().add(this);
+        //user.shareTicket(this);
     }
 
 }

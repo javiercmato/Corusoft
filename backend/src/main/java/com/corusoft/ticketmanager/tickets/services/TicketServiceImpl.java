@@ -1,14 +1,9 @@
 package com.corusoft.ticketmanager.tickets.services;
 
-import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
-import com.corusoft.ticketmanager.common.exceptions.PermissionException;
-import com.corusoft.ticketmanager.common.exceptions.TicketAlreadySharedException;
-import com.corusoft.ticketmanager.common.exceptions.UnableToParseImageException;
+import com.corusoft.ticketmanager.common.exceptions.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateTicketParamsDTO;
-import com.corusoft.ticketmanager.tickets.controllers.dtos.SpendingPerMonthsDTO;
 import com.corusoft.ticketmanager.tickets.entities.*;
 import com.corusoft.ticketmanager.tickets.repositories.*;
-import com.corusoft.ticketmanager.tickets.services.utils.Spendings;
 import com.corusoft.ticketmanager.tickets.services.utils.TicketUtils;
 import com.corusoft.ticketmanager.users.entities.User;
 import com.corusoft.ticketmanager.users.services.utils.UserUtils;
@@ -18,16 +13,14 @@ import com.mindee.parsing.common.Document;
 import com.mindee.parsing.common.field.TaxField;
 import com.mindee.parsing.receipt.ReceiptV4DocumentPrediction;
 import com.mindee.parsing.receipt.ReceiptV4Inference;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -168,62 +161,33 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public void shareTicket(Long userId, Long ticketId, String receiverName) throws EntityNotFoundException,
+    public Ticket shareTicket(Long userId, Long ticketId, Long receiverID) throws EntityNotFoundException,
             TicketAlreadySharedException, PermissionException {
-
-        //Comprobar si existe el usuario dueño y el ticket existen.
+        // Comprobar si existen el autor, el receptor y el ticket
         User owner = userUtils.fetchUserByID(userId);
+        User receiver = userUtils.fetchUserByID(receiverID);
         Ticket ticket = ticketUtils.fetchTicketById(ticketId);
 
-        //Comprobar que el usuario sea el dueño del ticket.
-        if(ticket.getCreator() != owner) {throw new PermissionException();}
-
-        //Comprobar que el recibidor existe
-        User receiver = userUtils.fetchUserByNickname(receiverName);
-
-        //El que lo recibe no puede ser el dueño.
-        if(ticket.getCreator() == receiver) {throw new TicketAlreadySharedException(
-                Ticket.class.getSimpleName(), receiverName);}
-
-        //El que lo recibe no puede haberlo recibido ya.
-        if(receiver.getSharedTickets().contains(ticket)) {throw new TicketAlreadySharedException(
-                TicketService.class.getSimpleName(), receiverName
-        );}
-
-        //Compartimos el ticket al recibidor.
-        receiver.shareTicket(ticket);
-
-    }
-
-    @Override
-    public List<SpendingPerMonthsDTO> getUserSpendingsPerMonth(Long userId) throws EntityNotFoundException {
-
-        User user = userUtils.fetchUserByID(userId);
-
-        List<Spendings> spendingsPerMonths = ticketRepo.findUserSpendings(user.getId());
-        List<SpendingPerMonthsDTO> spendingPerMonthsDTOS = new ArrayList<>();
-
-        Month month = null;
-        SpendingPerMonthsDTO currentSpendingDTO = null;
-
-        if(!spendingsPerMonths.isEmpty()) {
-
-            month = spendingsPerMonths.get(0).getDate().getMonth();
-            spendingPerMonthsDTOS.add(new SpendingPerMonthsDTO(month.toString()));
-
-            for (Spendings s: spendingsPerMonths) {
-
-                if(month == s.getDate().getMonth()) {
-                    currentSpendingDTO = spendingPerMonthsDTOS.get(spendingPerMonthsDTOS.size()-1);
-                    currentSpendingDTO.setSpendAmount(s.getSpendings());
-                } else {
-                    month = s.getDate().getMonth();
-                    spendingPerMonthsDTOS.add(new SpendingPerMonthsDTO(Month.of(
-                            s.getDate().getMonthValue()).toString(), s.getSpendings()));
-                }
-            }
+        // Comprobar que el usuario sea el dueño del ticket.
+        if (!ticket.getCreator().equals(owner)) {
+            throw new PermissionException();
         }
 
-        return spendingPerMonthsDTOS;
+        // Comprobar que el receptor del ticket no sea el propietario del ticket
+        if (ticket.getCreator().equals(receiver)) {
+            throw new TicketAlreadySharedException(Ticket.class.getSimpleName(), receiver.getNickname());
+        }
+
+        // Comprobar que el receptor no haya recibido el ticket actual previamente
+        if (receiver.getSharedTickets().contains(ticket)) {
+            throw new TicketAlreadySharedException(TicketService.class.getSimpleName(), receiver.getNickname());
+        }
+
+        // Compartir el ticket con el receptor
+        ticket.shareWithUser(receiver);
+
+        return ticketRepo.save(ticket);
     }
+
+
 }

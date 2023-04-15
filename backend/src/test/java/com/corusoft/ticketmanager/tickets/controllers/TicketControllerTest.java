@@ -1,18 +1,16 @@
 package com.corusoft.ticketmanager.tickets.controllers;
 
 import com.corusoft.ticketmanager.TestUtils;
-import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
 import com.corusoft.ticketmanager.common.jwt.JwtData;
 import com.corusoft.ticketmanager.common.jwt.JwtGenerator;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.CategoryConversor;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.TicketConversor;
 import com.corusoft.ticketmanager.tickets.entities.*;
-import com.corusoft.ticketmanager.tickets.repositories.CategoryRepository;
 import com.corusoft.ticketmanager.tickets.repositories.CustomizedCategoryRepository;
 import com.corusoft.ticketmanager.tickets.repositories.TicketRepository;
 import com.corusoft.ticketmanager.users.controllers.dtos.AuthenticatedUserDTO;
 import com.corusoft.ticketmanager.users.entities.User;
-import com.corusoft.ticketmanager.users.exceptions.IncorrectLoginException;
 import com.corusoft.ticketmanager.users.repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
@@ -26,11 +24,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
+import java.util.Locale;
 
 import static com.corusoft.ticketmanager.common.security.JwtFilter.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -42,6 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TicketControllerTest {
     /* ************************* CONSTANTES ************************* */
     private static final String API_ENDPOINT = "/api/tickets";
+    private final Locale locale = Locale.getDefault();
 
 
     /* ************************* DEPENDENCIAS ************************* */
@@ -153,76 +152,41 @@ public class TicketControllerTest {
     }
 
     @Test
-    void whenShareTicket_thenVoid() throws Exception {
+    void whenShareTicket_thenTicketDTO() throws Exception {
         // Crear datos de prueba
-        User validUser = testUtils.generateValidUser();
-        User validUser2 = testUtils.generateValidUser();
-        validUser2.setNickname("Other");
-        validUser2.setEmail("OtherEmail");
-        userRepository.save(validUser);
-        userRepository.save(validUser2);
-        // Guardar usuario en BD
+        User author = testUtils.generateValidUser("author");
+        userRepository.save(author);
+        User receiver = testUtils.generateValidUser("receiver");
+        userRepository.save(receiver);
         Category validCategory = testUtils.registerValidCategory();
-        CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(validUser,validCategory);
-        ParsedTicketData parsedTicketData = testUtils.registerParseTicket();
-        Ticket ticket = testUtils.registerTicket(customizedCategory, validUser, parsedTicketData);
-
-        AuthenticatedUserDTO authUserDTO = testUtils.generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
-        JwtData jwtData = jwtGenerator.extractInfoFromToken(authUserDTO.getServiceToken());
-
-        ShareParamsDTO shareParamsDTO = new ShareParamsDTO();
-
-        shareParamsDTO.setReceiverName("Other");
+        CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(author, validCategory);
+        ParsedTicketData parsedTicketData = testUtils.registerParsedTicketData();
+        Ticket ticket = testUtils.registerTicket(customizedCategory, author, parsedTicketData);
+        AuthenticatedUserDTO authorAuthDTO = testUtils.generateAuthenticatedUser(author);
+        JwtData authorJwtData = jwtGenerator.extractInfoFromToken(authorAuthDTO.getServiceToken());
+        ShareTicketParamsDTO params = new ShareTicketParamsDTO(author.getId(), receiver.getId());
 
         // Ejecutar funcionalidades
         String endpoint = API_ENDPOINT + "/share/" + ticket.getId().toString();
-
-        String encodedBodyContent = this.jsonMapper.writeValueAsString(shareParamsDTO);
-
+        String encodedBodyContent = this.jsonMapper.writeValueAsString(params);
         ResultActions actions = mockMvc.perform(
                 post(endpoint)
                         // Valores anotados como @RequestAttribute
-                        .requestAttr(USER_ID_ATTRIBUTE_NAME, jwtData.getUserID())
-                        .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, jwtData.toString())
-                        .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authUserDTO.getServiceToken())
+                        .requestAttr(USER_ID_ATTRIBUTE_NAME, authorJwtData.getUserID())
+                        .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, authorJwtData.toString())
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authorAuthDTO.getServiceToken())
+                        .header(HttpHeaders.ACCEPT_LANGUAGE, locale.getLanguage())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(encodedBodyContent)
         );
+        Ticket expectedResponse = ticketRepository.findById(ticket.getId()).get();
+        String encodedResponseBodyContent = this.jsonMapper.writeValueAsString(TicketConversor.toTicketDTO(expectedResponse));
 
-        // Comprobar resultados, como devuelve un void , debería devolver un created
+        // Comprobar resultados
        actions
-                .andExpect(status().isCreated());
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+               .andExpect(content().string(encodedResponseBodyContent));
     }
 
-    @Test
-    void whenGetSpendingsPerMonth_thenSpendingsPerMonth() throws Exception {
-
-        User user = userRepository.save(testUtils.generateValidUser());
-        Category category = testUtils.registerValidCategory();
-        CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(user, category);
-        ParsedTicketData parsedTicketData = testUtils.registerParseTicket();
-        Ticket ticket = testUtils.registerTicket(customizedCategory, user, parsedTicketData);
-        Ticket ticket1 = testUtils.registerTicket(customizedCategory, user, parsedTicketData);
-        ticket1.setRegisteredAt(LocalDateTime.now().plusMonths(1));
-        ticketRepository.save(ticket1);
-
-        AuthenticatedUserDTO authUserDTO = testUtils.generateAuthenticatedUser(user);
-        JwtData jwtData = jwtGenerator.extractInfoFromToken(authUserDTO.getServiceToken());
-
-        String endpoint = API_ENDPOINT + "/spendingsPerMonth" ;
-
-        ResultActions actions = mockMvc.perform(
-                get(endpoint)
-                        // Valores anotados como @RequestAttribute
-                        .requestAttr(USER_ID_ATTRIBUTE_NAME, jwtData.getUserID())
-                        .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, jwtData.toString())
-                        .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authUserDTO.getServiceToken())
-                        .contentType(MediaType.APPLICATION_JSON)
-        );
-
-        actions
-                .andExpect(status().isOk());
-
-
-    }
 }

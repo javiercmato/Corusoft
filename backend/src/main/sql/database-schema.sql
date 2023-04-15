@@ -1,5 +1,7 @@
-DROP TABLE IF EXISTS Subscription;
 DROP TABLE IF EXISTS TicketReceived;
+
+DROP TABLE IF EXISTS Subscription;
+DROP TABLE IF EXISTS SharedTicket;
 DROP TABLE IF EXISTS Ticket;
 DROP TABLE IF EXISTS ParsedTicketData;
 DROP TABLE IF EXISTS Store;
@@ -91,28 +93,27 @@ CREATE TABLE IF NOT EXISTS Ticket (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS TicketReceived (
+CREATE TABLE IF NOT EXISTS SharedTicket (
+    ticket_id               BIGINT          NOT NULL,
+    receiver_id             BIGINT          NOT NULL,
 
-    receiver_id BIGINT NOT NULL,
-    ticket_id BIGINT NOT NULL,
-
-    CONSTRAINT PK_TicketReceived PRIMARY KEY (receiver_id, ticket_id),
-    CONSTRAINT FK_TicketReceived_TO_UserTable
+    CONSTRAINT PK_SharedTicket PRIMARY KEY (receiver_id, ticket_id),
+    CONSTRAINT FK_SharedTicket_TO_UserTable
         FOREIGN KEY (receiver_id) REFERENCES UserTable (id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    CONSTRAINT FK_TicketReceived_TO_TicketTable
+    CONSTRAINT FK_SharedTicket_TO_Ticket
         FOREIGN KEY (ticket_id) REFERENCES Ticket (id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Subscription (
-    id          SERIAL,
-    status      VARCHAR         NOT NULL,
-    customer_id INTEGER,
-    starting_at TIMESTAMP       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
-    ending_at   TIMESTAMP       NOT NULL,
+    id                  SERIAL,
+    status              VARCHAR         NOT NULL,
+    customer_id         INTEGER,
+    starting_at         TIMESTAMP       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
+    ending_at           TIMESTAMP       NOT NULL,
 
     CONSTRAINT PK_Subscription PRIMARY KEY (id),
     CONSTRAINT FK_Subscription_TO_UserTable

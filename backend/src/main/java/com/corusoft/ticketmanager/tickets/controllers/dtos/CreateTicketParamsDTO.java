@@ -1,6 +1,6 @@
 package com.corusoft.ticketmanager.tickets.controllers.dtos;
 
-import com.corusoft.ticketmanager.common.JacksonLocalDateDeserializer;
+import com.corusoft.ticketmanager.common.controllers.JacksonLocalDateDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.*;
 import lombok.*;

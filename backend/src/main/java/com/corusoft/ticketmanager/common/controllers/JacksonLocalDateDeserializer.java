@@ -1,4 +1,4 @@
-package com.corusoft.ticketmanager.common;
+package com.corusoft.ticketmanager.common.controllers;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;

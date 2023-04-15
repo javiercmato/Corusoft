@@ -1,15 +1,7 @@
 package com.corusoft.ticketmanager;
 
-import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
-import com.corusoft.ticketmanager.tickets.controllers.dtos.SpendingPerMonthsDTO;
-import com.corusoft.ticketmanager.tickets.entities.Category;
-import com.corusoft.ticketmanager.tickets.entities.CustomizedCategory;
-import com.corusoft.ticketmanager.tickets.entities.ParsedTicketData;
-import com.corusoft.ticketmanager.tickets.entities.Ticket;
-import com.corusoft.ticketmanager.tickets.repositories.CategoryRepository;
-import com.corusoft.ticketmanager.tickets.repositories.CustomizedCategoryRepository;
-import com.corusoft.ticketmanager.tickets.repositories.ParsedTicketDataRepository;
-import com.corusoft.ticketmanager.tickets.repositories.TicketRepository;
+import com.corusoft.ticketmanager.tickets.entities.*;
+import com.corusoft.ticketmanager.tickets.repositories.*;
 import com.corusoft.ticketmanager.tickets.services.TicketService;
 import com.corusoft.ticketmanager.users.controllers.UserController;
 import com.corusoft.ticketmanager.users.controllers.dtos.*;
@@ -18,27 +10,29 @@ import com.corusoft.ticketmanager.users.entities.UserRole;
 import com.corusoft.ticketmanager.users.exceptions.IncorrectLoginException;
 import com.corusoft.ticketmanager.users.repositories.UserRepository;
 import com.corusoft.ticketmanager.users.services.UserService;
-import jakarta.persistence.Column;
-import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.*;
 import java.util.Locale;
 
 @Component
 public class TestUtils {
 
     /* ************************* CONSTANTES ************************* */
-    public final Locale locale = Locale.getDefault();
     public final String DEFAULT_NICKNAME = "Foo";
     public final String DEFAULT_PASSWORD = "Bar";
     public final String DEFAULT_CATEGORY_NAME = "Category";
     public final Float DEFAULT_CATEGORY_MAX_WASTE_LIMIT = 100f;
+    public final String TESTS_ASSETS_PATH = "src/test/resources/assets/";
+    public final String DEFAULT_TEST_TICKET_NAME = "ticket-test.jpeg";
 
     /* ************************* DEPENDENCIAS ************************* */
     @Autowired
@@ -69,11 +63,19 @@ public class TestUtils {
      * Genera datos de un usuario válido.
      */
     public User generateValidUser() {
+        return this.generateValidUser(DEFAULT_NICKNAME);
+    }
+
+    /**
+     * Genera datos de un usuario válido con el nickname recibido
+     */
+    public User generateValidUser(String nickname) {
+        nickname = nickname.trim();
         User user = new User();
-        user.setNickname(DEFAULT_NICKNAME);
+        user.setNickname(nickname);
         user.setPassword(passwordEncoder.encode(DEFAULT_PASSWORD));
-        user.setName("TestUser Name");
-        user.setEmail(user.getNickname().toLowerCase() + "@corusoft.udc");
+        user.setName("name_" + nickname);
+        user.setEmail(nickname.toLowerCase() + "@corusoft.udc");
         user.setRole(UserRole.USER);
         user.setRegistered_at(LocalDateTime.now());
 
@@ -140,7 +142,6 @@ public class TestUtils {
         );
     }
 
-
     /** Registra una categoría válida */
     public Category registerValidCategory() {
         Category category = new Category();
@@ -155,47 +156,86 @@ public class TestUtils {
         customCategory.setMaxWasteLimit(DEFAULT_CATEGORY_MAX_WASTE_LIMIT);
         customCategory.setCategory(category);
         customCategory.setUser(user);
+        user.assignCustomizedCategory(customCategory);
 
         return customCategoryRepo.save(customCategory);
     }
 
-    // Función para devolver un ticket ya guardado en base de datos.
+    /** Carga una imágen como array de bytes desde la carpeta de test/resources/assets */
+    public byte[] loadImageFromResources(String resourceName) {
+        Path imagePath = Paths.get(TESTS_ASSETS_PATH, resourceName);
+        File imageFile = imagePath.toFile();
+        byte[] imageBytes;
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            BufferedImage bi = ImageIO.read(imageFile);
+            ImageIO.write(bi, resourceName, baos);
+            imageBytes = baos.toByteArray();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            imageBytes = new byte[0];
+        }
+
+        return imageBytes;
+    }
+
+    /** Registra en base de datos un ticket */
+    public Ticket generateValidTicket(CustomizedCategory customizedCategory, User user, ParsedTicketData parsedTicketData) {
+        byte[] ticketPicture = loadImageFromResources(DEFAULT_TEST_TICKET_NAME);
+
+        return Ticket.builder()
+                .name(DEFAULT_TEST_TICKET_NAME)
+                .customizedCategory(customizedCategory)
+                .amount(1.00F)
+                .currency("Currency")
+                .picture(ticketPicture)
+                .store("store")
+                .creator(user)
+                .parsedTicketData(parsedTicketData)
+                .emittedAt(LocalDateTime.now())
+                .registeredAt(LocalDateTime.now())
+                .build();
+    }
+
+    /** Registra en base de datos un ticket */
     public Ticket registerTicket(CustomizedCategory customizedCategory, User user, ParsedTicketData parsedTicketData) {
-        Ticket ticket = new Ticket();
-        ticket.setName("Ticket");
-        ticket.setRegisteredAt(LocalDateTime.now());
-        ticket.setEmittedAt(LocalDateTime.now());
-        ticket.setAmount(0F);
-        ticket.setCurrency("Currency");
-        byte[] data = new byte[1/2];
-        ticket.setPicture(data);
-        ticket.setStore("store");
-        ticket.setCreator(user);
-        ticket.setCustomizedCategory(customizedCategory);
-        ticket.setParsedTicketData(parsedTicketData);
+        byte[] ticketPicture = loadImageFromResources(DEFAULT_TEST_TICKET_NAME);
+
+        Ticket ticket = Ticket.builder()
+                .name(DEFAULT_TEST_TICKET_NAME)
+                .customizedCategory(customizedCategory)
+                .amount(1.00F)
+                .currency("Currency")
+                .picture(ticketPicture)
+                .store("store")
+                .creator(user)
+                .parsedTicketData(parsedTicketData)
+                .emittedAt(LocalDateTime.now())
+                .registeredAt(LocalDateTime.now())
+                .build();
+
         return ticketRepo.save(ticket);
     }
 
-    // Función para devolver un parsedticket ya almacenado en base de datos.
-    public ParsedTicketData registerParseTicket() {
+    /** Registra en base de datos un ParsedTicketData con datos reales */
+    public ParsedTicketData registerParsedTicketData() {
+        ParsedTicketData parsedTicketData = ParsedTicketData.builder()
+                // Datos reales de un ticket
+                .category("food")
+                .emitted_at_date(LocalDate.of(2023, Month.FEBRUARY, 22))
+                .emitted_at_time("19:20")
+                .country("ES")
+                .currency("EUR")
+                .language("es")
+                .subcategory("shopping")
+                .supplier("EROSKI CENTER")
+                .total_amount(12.22F)
+                .total_tax(0.99F)
+                .registered_at(LocalDateTime.now())
+                .build();
 
-        ParsedTicketData parsedTicketData = new ParsedTicketData();
-        parsedTicketData.setLanguage("en");
-        parsedTicketData.setCurrency("$");
-        parsedTicketData.setTotal_tax(6F);
-        parsedTicketData.setTotal_amount(100F);
-        parsedTicketData.setEmitted_at_time("h");
-        parsedTicketData.setSubcategory("subcategory");
-        parsedTicketData.setCategory("category");
-        parsedTicketData.setSupplier("supplier");
-        parsedTicketData.setRegistered_at(LocalDateTime.now());
         return parsedTicketDataRepo.save(parsedTicketData);
 
     }
 
-    //Función para recuperar los datos de stats del servicio.
-
-    public List<SpendingPerMonthsDTO> getSpendingsPerMonth(Long userId) throws EntityNotFoundException {
-        return ticketService.getUserSpendingsPerMonth(userId);
-    }
 }

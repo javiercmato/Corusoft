@@ -53,18 +53,21 @@ public class User {
 
     @ManyToMany
     @JoinTable(
-        name = "TicketReceived",
-        joinColumns = @JoinColumn(name = "receiver_id"),
-        inverseJoinColumns = @JoinColumn(name = "ticket_id"))
+        name = "SharedTicket",
+        joinColumns = @JoinColumn(name = "receiver_id", nullable = false),
+        inverseJoinColumns = @JoinColumn(name = "ticket_id", nullable = false))
     private Set<Ticket> sharedTickets = new LinkedHashSet<>();
 
     /* *************** Métodos de entidad *************** */
-
     /**
      * Comprobar si el usuario tiene alguna subscripción activa
      */
     @Transient
     public Boolean hasSubscriptionActive() {
+        if (this.subscriptions.isEmpty()) {
+            return false;
+        }
+
         return subscriptions.stream()
                 .anyMatch((sub) -> sub.getStatus().equals(SubscriptionStatus.ACTIVE));
     }
@@ -75,6 +78,10 @@ public class User {
      */
     @Transient
     public void assignSubscription(Subscription subscription) {
+        if (this.subscriptions == null) {
+            this.subscriptions = new LinkedHashSet<>();
+        }
+
         subscriptions.add(subscription);
         subscription.setUser(this);
     }
@@ -85,6 +92,10 @@ public class User {
      */
     @Transient
     public void assignCustomizedCategory(CustomizedCategory customCategory) {
+        if (this.customizedCategories == null) {
+            this.customizedCategories = new LinkedHashSet<>();
+        }
+
         customizedCategories.add(customCategory);
         customCategory.setUser(this);
     }
@@ -95,18 +106,12 @@ public class User {
      */
     @Transient
     public void assignTicket(Ticket ticket) {
+        if (this.tickets == null) {
+            this.tickets = new LinkedHashSet<>();
+        }
+
         tickets.add(ticket);
         ticket.setCreator(this);
-    }
-
-    /**
-     * Comparte un Ticket a este usuario.
-     * @param ticket - Ticket a compartir
-     */
-    @Transient
-    public void shareTicket(Ticket ticket) {
-        sharedTickets.add(ticket);
-        ticket.sharedUsers(this);
     }
 
 }

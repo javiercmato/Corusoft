@@ -50,10 +50,18 @@ public class TicketController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorsDTO handleTicketAlreadySharedException(TicketAlreadySharedException exception, Locale locale) {
-        String errorMessage = messageSource.getMessage(
-                TICKET_ALREADY_SHARED_EXCEPTION_KEY, null, TICKET_ALREADY_SHARED_EXCEPTION_KEY, locale);
+        String exceptionMessage = messageSource.getMessage(
+                exception.getEntityName(), null, exception.getEntityName(), locale
+        );
 
-        return new ErrorsDTO(errorMessage);
+        String globalErrorMessage = messageSource.getMessage(
+                TICKET_ALREADY_SHARED_EXCEPTION_KEY,
+                new Object[] {exceptionMessage, exception.getKey().toString()},
+                TICKET_ALREADY_SHARED_EXCEPTION_KEY,
+                locale
+        );
+
+        return new ErrorsDTO(globalErrorMessage);
     }
     /* ******************** ENDPOINTS ******************** */
     @GetMapping(path = "/categories",
@@ -134,29 +142,22 @@ public class TicketController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public void shareTicket(@RequestAttribute("userID") Long userID,
-                                  @PathVariable("ticketId") Long ticketId,
-                                  @Validated @RequestBody ShareParamsDTO params)
-            throws EntityNotFoundException, TicketAlreadySharedException, PermissionException {
-
-        ticketService.shareTicket(userID, ticketId, params.getReceiverName());
-
-    }
-
-    @GetMapping(path = "/spendingsPerMonth",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<SpendingPerMonthsDTO> getSpendingsPerMonth(@RequestAttribute("userID") Long userID)
-            throws EntityNotFoundException {
+    public TicketDTO shareTicket(@RequestAttribute("userID") Long userID,
+                            @PathVariable("ticketId") Long ticketID,
+                            @Validated @RequestBody ShareTicketParamsDTO params)
+            throws EntityNotFoundException, TicketAlreadySharedException, PermissionException {
+        // Comprobar que el usuario actual y el usuario que solicita la operación son el mismo
+        if (!userUtils.doUsersMatch(userID, params.getSenderID()))
+            throw new PermissionException();
 
-        return ticketService.getUserSpendingsPerMonth(userID);
+        Ticket ticket = ticketService.shareTicket(userID, ticketID, params.getReceiverID());
 
+        return TicketConversor.toTicketDTO(ticket);
     }
+
+
     /* ******************** FUNCIONES AUXILIARES ******************** */
 
 

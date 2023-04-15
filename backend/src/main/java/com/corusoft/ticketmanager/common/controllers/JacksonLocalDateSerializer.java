@@ -1,4 +1,4 @@
-package com.corusoft.ticketmanager.common;
+package com.corusoft.ticketmanager.common.controllers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -6,27 +6,30 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
 import java.io.Serial;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class JacksonLocalDateTimeSerializer extends StdSerializer<LocalDateTime> {
+
+public class JacksonLocalDateSerializer extends StdSerializer<LocalDate> {
     @Serial
     private static final long serialVersionUID = 1355852411036457107L;
 
     private static final DateTimeFormatter formatter =
-            DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+            DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-    public JacksonLocalDateTimeSerializer() {
+    public JacksonLocalDateSerializer() {
         this(null);
     }
 
-    protected JacksonLocalDateTimeSerializer(Class<LocalDateTime> type) {
+
+    protected JacksonLocalDateSerializer(Class<LocalDate> type) {
         super(type);
     }
 
     @Override
-    public void serialize(LocalDateTime value, JsonGenerator jsonGenerator,
+    public void serialize(LocalDate value, JsonGenerator jsonGenerator,
                           SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeString(formatter.format(value));
     }
+
 }
