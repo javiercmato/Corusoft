@@ -155,6 +155,7 @@ public class UserControllerTest {
                         .requestAttr(USER_ID_ATTRIBUTE_NAME, jwtData.getUserID())
                         .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, jwtData.toString())
                         .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authUserDTO.getServiceToken())
+
         );
 
         // Comprobar resultados
@@ -179,6 +180,7 @@ public class UserControllerTest {
                         .requestAttr(USER_ID_ATTRIBUTE_NAME, jwtData.getUserID())
                         .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, jwtData.toString())
                         .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authUserDTO.getServiceToken())
+                        .header(HttpHeaders.ACCEPT_LANGUAGE, locale.getLanguage())
         );
 
         // Comprobar resultados
