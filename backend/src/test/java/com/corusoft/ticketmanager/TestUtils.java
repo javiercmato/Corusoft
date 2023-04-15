@@ -1,8 +1,10 @@
 package com.corusoft.ticketmanager;
 
+import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateTicketParamsDTO;
 import com.corusoft.ticketmanager.tickets.entities.*;
 import com.corusoft.ticketmanager.tickets.repositories.*;
 import com.corusoft.ticketmanager.tickets.services.TicketService;
+import com.corusoft.ticketmanager.tickets.services.utils.TicketUtils;
 import com.corusoft.ticketmanager.users.controllers.UserController;
 import com.corusoft.ticketmanager.users.controllers.dtos.*;
 import com.corusoft.ticketmanager.users.entities.User;
@@ -18,8 +20,7 @@ import org.springframework.stereotype.Component;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.time.*;
 import java.util.Locale;
 
@@ -33,6 +34,7 @@ public class TestUtils {
     public final Float DEFAULT_CATEGORY_MAX_WASTE_LIMIT = 100f;
     public final String TESTS_ASSETS_PATH = "src/test/resources/assets/";
     public final String DEFAULT_TEST_TICKET_NAME = "ticket-test.jpeg";
+    public final String DEFAULT_TEST_TICKET_BASE64_NAME = "ticket-test-base64string.txt";
 
     /* ************************* DEPENDENCIAS ************************* */
     @Autowired
@@ -55,6 +57,8 @@ public class TestUtils {
     private TicketRepository ticketRepo;
     @Autowired
     private ParsedTicketDataRepository parsedTicketDataRepo;
+    @Autowired
+    private TicketUtils ticketUtils;
 
 
     /* ************************* MÉTODOS AUXILIARES ************************* */
@@ -179,6 +183,20 @@ public class TestUtils {
         return imageBytes;
     }
 
+    public String loadImageFromResourcesAsB64String(String resourceName) {
+        Path imagePath = Paths.get(TESTS_ASSETS_PATH, resourceName);
+        String imageB64DataString = "";
+
+        try {
+            imageB64DataString = new String(Files.readAllBytes(imagePath));
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+
+        return imageB64DataString;
+    }
+
     /** Registra en base de datos un ticket */
     public Ticket generateValidTicket(CustomizedCategory customizedCategory, User user, ParsedTicketData parsedTicketData) {
         byte[] ticketPicture = loadImageFromResources(DEFAULT_TEST_TICKET_NAME);
@@ -229,13 +247,32 @@ public class TestUtils {
                 .language("es")
                 .subcategory("shopping")
                 .supplier("EROSKI CENTER")
-                .total_amount(12.22F)
-                .total_tax(0.99F)
+                .totalAmount(12.22F)
+                .totalTax(0.99F)
                 .registered_at(LocalDateTime.now())
                 .build();
 
         return parsedTicketDataRepo.save(parsedTicketData);
 
+    }
+
+    /** Genera un DTO para crear un nuevo ticket */
+    public CreateTicketParamsDTO generateCreateTicketParamsDTO(User author, CustomizedCategory customCategory, ParsedTicketData data) {
+        String imageB64String = loadImageFromResourcesAsB64String(DEFAULT_TEST_TICKET_BASE64_NAME);
+
+        return CreateTicketParamsDTO.builder()
+                .userID(author.getId())
+                .supplier(data.getSupplier())
+                .categoryID(customCategory.getId().getCategoryID())
+                .emmitedAtDate(data.getEmitted_at_date())
+                .emmitedAtTime(data.getEmitted_at_time())
+                .country(data.getCountry())
+                .currency(data.getCurrency())
+                .totalTax(data.getTotalTax())
+                .totalAmount(data.getTotalAmount())
+                .ticketData(imageB64String)
+                .name(DEFAULT_TEST_TICKET_NAME)
+                .build();
     }
 
 }

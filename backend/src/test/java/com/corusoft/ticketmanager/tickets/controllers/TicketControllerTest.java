@@ -154,6 +154,41 @@ public class TicketControllerTest {
     }
 
     @Test
+    void whenCreateTicket_thenTicketDTO() throws Exception {
+        // Crear datos de prueba
+        User author = testUtils.generateValidUser();
+        AuthenticatedUserDTO authorAuthDTO = testUtils.generateAuthenticatedUser(author);
+        JwtData authorJwtData = jwtGenerator.extractInfoFromToken(authorAuthDTO.getServiceToken());
+        Category validCategory = testUtils.registerValidCategory();
+        CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(author, validCategory);
+        ParsedTicketData parsedTicketData = testUtils.registerParsedTicketData();
+
+        CreateTicketParamsDTO params = testUtils.generateCreateTicketParamsDTO(author, customizedCategory, parsedTicketData);
+
+        // Ejecutar funcionalidades
+        String endpoint = API_ENDPOINT + "/";
+        String encodedBodyContent = this.jsonMapper.writeValueAsString(params);
+        ResultActions actions = mockMvc.perform(
+                post(endpoint)
+                        // Valores anotados como @RequestAttribute
+                        .requestAttr(USER_ID_ATTRIBUTE_NAME, authorJwtData.getUserID())
+                        .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, authorJwtData.toString())
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authorAuthDTO.getServiceToken())
+                        .header(HttpHeaders.ACCEPT_LANGUAGE, locale.getLanguage())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(encodedBodyContent)
+        );
+        Ticket expectedResponse = author.getTickets().stream().findFirst().get();
+        String encodedResponseBodyContent = this.jsonMapper.writeValueAsString(TicketConversor.toTicketDTO(expectedResponse));
+
+        // Comprobar resultados
+        actions
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(encodedResponseBodyContent));
+    }
+
+    @Test
     void whenShareTicket_thenTicketDTO() throws Exception {
         // Crear datos de prueba
         User author = testUtils.generateValidUser("author");

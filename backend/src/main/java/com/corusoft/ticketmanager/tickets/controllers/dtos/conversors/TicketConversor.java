@@ -24,8 +24,8 @@ public class TicketConversor {
                 .emmitedAtTime(entity.getEmitted_at_time())
                 .country(entity.getCountry())
                 .currency(entity.getCurrency())
-                .totalTax(entity.getTotal_tax())
-                .totalAmount(entity.getTotal_amount())
+                .totalTax(entity.getTotalTax())
+                .totalAmount(entity.getTotalAmount())
                 .build();
     }
 

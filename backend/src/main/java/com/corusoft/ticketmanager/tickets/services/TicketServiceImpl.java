@@ -114,13 +114,13 @@ public class TicketServiceImpl implements TicketService {
         parsedTicket.setCountry(ticketPrediction.getLocaleField().getCountry());
         parsedTicket.setLanguage(ticketPrediction.getLocaleField().getLanguage());
         parsedTicket.setCurrency(ticketPrediction.getLocaleField().getCurrency());
-        parsedTicket.setTotal_amount(ticketPrediction.getTotalAmount().getValue().floatValue());
+        parsedTicket.setTotalAmount(ticketPrediction.getTotalAmount().getValue().floatValue());
         // Calcular tasas y coste total del ticket
         Float totalTaxes = 0f;
         for (TaxField tax: ticketPrediction.getTaxes()) {
             totalTaxes += tax.getValue().floatValue();
         }
-        parsedTicket.setTotal_tax(totalTaxes);
+        parsedTicket.setTotalTax(totalTaxes);
 
         parsedTicket.setRegistered_at(LocalDateTime.now());
         return parsedTicket;
