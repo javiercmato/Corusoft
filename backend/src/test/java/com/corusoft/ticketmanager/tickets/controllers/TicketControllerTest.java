@@ -1,14 +1,15 @@
 package com.corusoft.ticketmanager.tickets.controllers;
 
 import com.corusoft.ticketmanager.TestUtils;
+import com.corusoft.ticketmanager.common.dtos.GenericValueDTO;
 import com.corusoft.ticketmanager.common.jwt.JwtData;
 import com.corusoft.ticketmanager.common.jwt.JwtGenerator;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.CategoryConversor;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.TicketConversor;
 import com.corusoft.ticketmanager.tickets.entities.*;
-import com.corusoft.ticketmanager.tickets.repositories.CustomizedCategoryRepository;
-import com.corusoft.ticketmanager.tickets.repositories.TicketRepository;
+import com.corusoft.ticketmanager.tickets.repositories.*;
+import com.corusoft.ticketmanager.tickets.services.TicketService;
 import com.corusoft.ticketmanager.users.controllers.dtos.AuthenticatedUserDTO;
 import com.corusoft.ticketmanager.users.entities.User;
 import com.corusoft.ticketmanager.users.repositories.UserRepository;
@@ -24,11 +25,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Locale;
 
 import static com.corusoft.ticketmanager.common.security.JwtFilter.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -57,7 +58,11 @@ public class TicketControllerTest {
     @Autowired
     private TicketRepository ticketRepository;
     @Autowired
-    private CustomizedCategoryRepository categoryRepository;
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private CustomizedCategoryRepository customizedCategoryRepository;
+    @Autowired
+    private TicketService ticketService;
 
 
     /* ************************* MÉTODOS AUXILIARES ************************* */
@@ -115,24 +120,17 @@ public class TicketControllerTest {
     void whenUpdateCustomizedCategory_thenCustomizedCategoryDTO() throws Exception {
         // Crear datos de prueba
         User validUser = testUtils.generateValidUser();
-        // Guardar usuario en BD
-        userRepository.save(validUser);
-        Category validCategory = testUtils.registerValidCategory();
         AuthenticatedUserDTO authUserDTO = testUtils.generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
-        CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(validUser, validCategory);
         JwtData jwtData = jwtGenerator.extractInfoFromToken(authUserDTO.getServiceToken());
+        Category validCategory = testUtils.registerValidCategory();
+        CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(validUser, validCategory);
 
-        UpdateCustomizedCategoryParamsDTO paramsDTO = new UpdateCustomizedCategoryParamsDTO();
+        GenericValueDTO<Float> params = new GenericValueDTO<>(90F);
 
-        paramsDTO.setMaxWasteLimit(90F);
 
         // Ejecutar funcionalidades
         String endpoint = API_ENDPOINT + "/categories/" + validCategory.getId().toString();
-        CustomizedCategoryDTO customizedCategoryDTO = new CustomizedCategoryDTO();
-        customizedCategoryDTO.setMaxWasteLimit(paramsDTO.getMaxWasteLimit());
-
-        String encodedBodyContent = this.jsonMapper.writeValueAsString(paramsDTO);
-
+        String encodedBodyContent = this.jsonMapper.writeValueAsString(params);
         ResultActions actions = mockMvc.perform(
                 put(endpoint)
                         // Valores anotados como @RequestAttribute
@@ -146,12 +144,46 @@ public class TicketControllerTest {
 
         // Comprobar resultados
         CustomizedCategoryDTO expectedResponse = CategoryConversor.toCustomizedCategoryDTO(customizedCategory);
-        String expectedResponseBdoy = this.jsonMapper.writeValueAsString(expectedResponse);
+        String expectedResponseBody = this.jsonMapper.writeValueAsString(expectedResponse);
         actions
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(expectedResponseBdoy));
+                .andExpect(content().string(expectedResponseBody));
     }
+
+    @Test
+    void whenGetCustomizedCategoriesByUser_thenCustomizedCategoryDTOList() throws Exception {
+        // Crear datos de prueba
+        User validUser = testUtils.generateValidUser();
+        AuthenticatedUserDTO authUserDTO = testUtils.generateAuthenticatedUser(validUser);      // Registra un usuario y obtiene el DTO respuesta
+        JwtData jwtData = jwtGenerator.extractInfoFromToken(authUserDTO.getServiceToken());
+        Category validCategory1 = testUtils.registerValidCategory(testUtils.DEFAULT_CATEGORY_NAME);
+        Category validCategory2 = testUtils.registerValidCategory(testUtils.DEFAULT_CATEGORY_NAME + 2);
+        testUtils.registerCustomizedCategory(validUser, validCategory1);
+        testUtils.registerCustomizedCategory(validUser, validCategory2);
+
+        // Ejecutar funcionalidades
+        String endpoint = API_ENDPOINT + "/categories/" + validUser.getId();
+
+        ResultActions actions = mockMvc.perform(
+                get(endpoint)
+                        // Valores anotados como @RequestAttribute
+                        .requestAttr(USER_ID_ATTRIBUTE_NAME, jwtData.getUserID())
+                        .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, jwtData.toString())
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authUserDTO.getServiceToken())
+                        .header(HttpHeaders.ACCEPT_LANGUAGE, locale.getLanguage())
+        );
+
+        // Comprobar resultados
+        List<CustomizedCategory> serviceResponse = ticketService.getCustomCategoriesByUser(validUser.getId());
+        List<CustomizedCategoryDTO> expectedResponseContent = CategoryConversor.toCustomizedCategoryDTOList(serviceResponse);
+        String expectedResponseBody = this.jsonMapper.writeValueAsString(expectedResponseContent);
+        actions
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(expectedResponseBody));
+    }
+
 
     @Test
     void whenCreateTicket_thenTicketDTO() throws Exception {

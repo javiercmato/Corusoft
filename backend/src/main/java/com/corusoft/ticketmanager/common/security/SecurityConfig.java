@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/tickets/categories").permitAll()                     // getAllCategories
                 .requestMatchers(HttpMethod.POST, "/api/tickets/categories").permitAll()                    // createCustomizedCategory
                 .requestMatchers(HttpMethod.PUT, "/api/tickets/categories/*").permitAll()                   // updateCustomizedCategory
+                .requestMatchers(HttpMethod.GET, "/api/tickets/categories/*").permitAll()                   // getCustomizedCategoriesByUser
                 .requestMatchers(HttpMethod.POST, "/api/tickets/parse").permitAll()                         // parseTicket
                 .requestMatchers(HttpMethod.POST, "/api/tickets/").permitAll()                              // createTicket
                 .requestMatchers(HttpMethod.POST, "/api/tickets/share/*").permitAll()                       // shareTicket

@@ -95,14 +95,29 @@ public class TicketController {
     @ResponseBody
     public CustomizedCategoryDTO updateCustomizedCategory(@RequestAttribute("userID") Long userID,
                                                           @PathVariable("categoryID") Long categoryID,
-                                                          @Validated @RequestBody UpdateCustomizedCategoryParamsDTO params)
+                                                          @Validated @RequestBody GenericValueDTO<Float> params)
             throws EntityNotFoundException {
-        // Actualizar la categoría customizada
-        CustomizedCategory customCategory = ticketService.updateCustomCategory(userID,
-                categoryID, params.getMaxWasteLimit());
+        // Actualizar la categoría personalizada
+        CustomizedCategory customCategory = ticketService.updateCustomCategory(userID, categoryID, params.getValue());
 
         // Devolver categoría personalizada
         return CategoryConversor.toCustomizedCategoryDTO(customCategory);
+    }
+
+    @GetMapping(path = "/categories/{userID}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public List<CustomizedCategoryDTO> getCustomizedCategoriesByUser(@RequestAttribute("userID") Long userID,
+                                                                     @PathVariable("userID") Long pathUserID)
+            throws PermissionException, EntityNotFoundException {
+        // Comprobar que el usuario actual y el usuario que solicita la operación son el mismo
+        if (!userUtils.doUsersMatch(userID, pathUserID))
+            throw new PermissionException();
+
+        // Recuperar categorías personalizadas del usuario
+        List<CustomizedCategory> customCategories = ticketService.getCustomCategoriesByUser(userID);
+
+        return CategoryConversor.toCustomizedCategoryDTOList(customCategories);
     }
 
     @PostMapping(path = "/parse",

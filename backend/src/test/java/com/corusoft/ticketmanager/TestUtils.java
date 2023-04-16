@@ -148,8 +148,13 @@ public class TestUtils {
 
     /** Registra una categoría válida */
     public Category registerValidCategory() {
+        return this.registerValidCategory(DEFAULT_CATEGORY_NAME);
+    }
+
+    /** Registra una categoría válida */
+    public Category registerValidCategory(String name) {
         Category category = new Category();
-        category.setName(DEFAULT_CATEGORY_NAME);
+        category.setName(name);
 
         return categoryRepo.save(category);
     }
