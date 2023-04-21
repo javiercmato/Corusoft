@@ -1,11 +1,12 @@
 package com.corusoft.ticketmanager
 
 import android.os.Bundle
-import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.*
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class Landing : AppCompatActivity() {
@@ -16,6 +17,7 @@ class Landing : AppCompatActivity() {
         datosCorrutina()
 
     }
+
     private fun datosCorrutina() = runBlocking {
         coroutineScope {
             launch {
