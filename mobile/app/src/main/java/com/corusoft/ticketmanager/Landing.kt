@@ -10,14 +10,5 @@ class Landing : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_landing)
 
-        // Obtener referencia al botón
-        val button = findViewById<FloatingActionButton>(R.id.floatingActionButton2)
-
-        // Añadir listener al botón
-        button.setOnClickListener {
-            // Mostrar mensaje de log
-            Log.d("LandingActivity", "Se pulsó el botón para agregar un ticket")
-        }
-
     }
 }
