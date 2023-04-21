@@ -5,22 +5,20 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MyTickets : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_tickets)
 
-        //Obtener referencia al botón
-        val addButton = findViewById<FloatingActionButton>(R.id.buttonAdd)
-        val filterButton = findViewById<Button>(R.id.buttonFilter)
+        datosCorrutina()
 
-        //Añadir listener al botón
-        addButton.setOnClickListener {
-            //Mostrar mensaje de log
-            Log.d("MyTicketsActivity", "Se pulsó el botón para agregar un ticket")
-        }
+        //Obtener referencia al botón
+        val filterButton = findViewById<Button>(R.id.buttonFilter)
 
         filterButton.setOnClickListener {
             Log.d("MyTicketsActivity", "Se pulsó el botón para filtrar los tickets")
@@ -31,5 +29,15 @@ class MyTickets : AppCompatActivity() {
             val intent = Intent(this, MyTicketsFilter::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun datosCorrutina() = runBlocking {
+        coroutineScope {
+            launch {
+                delay(1000L)
+                println("Solicitando listado de tickets...")
+            }
+        }
+        println("Listado de tickets recibidos")
     }
 }

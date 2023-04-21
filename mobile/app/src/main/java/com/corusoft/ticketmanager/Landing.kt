@@ -1,23 +1,33 @@
 package com.corusoft.ticketmanager
 
 import android.os.Bundle
-import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
 
 class Landing : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_landing)
 
-        // Obtener referencia al botón
-        val button = findViewById<FloatingActionButton>(R.id.floatingActionButton2)
-
-        // Añadir listener al botón
-        button.setOnClickListener {
-            // Mostrar mensaje de log
-            Log.d("LandingActivity", "Se pulsó el botón para agregar un ticket")
-        }
+        datosCorrutina()
 
     }
+
+    private fun datosCorrutina() = runBlocking {
+        coroutineScope {
+            launch {
+                delay(1000L)
+                println("Solicitando datos históricos a backend...")
+            }
+        }
+        println("Datos históricos recibidos")
+        Toast.makeText(applicationContext, "Datos históricos recibidos", Toast.LENGTH_SHORT)
+            .show()
+    }
+
 }
