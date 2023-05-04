@@ -18,6 +18,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
 
 class LogIn : AppCompatActivity(), View.OnClickListener {
 
@@ -46,6 +50,12 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
 
         val googleButton = findViewById<SignInButton>(R.id.sign_in_button)
         googleButton.setOnClickListener(this)
+/*
+        // ListenerLogin
+        val signInButton = findViewById<Button>(R.id.button4)
+        signInButton.setOnClickListener {
+            logIn()
+        }*/
     }
 
     override fun onStart() {
@@ -74,6 +84,7 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
 
         if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+
             /************/
             // To check that the user information is being collected properly
             val account = task.getResult(ApiException::class.java)!!
@@ -102,7 +113,66 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
         finish()
     }
 
+    fun makeHttpRequest(url: String, json: String) {
+        // Creamos un cliente HTTP
+        val client = OkHttpClient()
+
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+
+        // Creamos una solicitud HTTP POST
+        val request = Request.Builder()
+            .url(url)
+            .post(json.toRequestBody(mediaType))
+            .build()
+/*
+        // Enviamos la solicitud HTTP
+        val response = client.newCall(request).execute()
+
+        // Obtenemos la respuesta HTTP como cadena de texto
+        val responseBody = response.body?.string()
+
+        // Devolvemos la respuesta HTTP
+        return responseBody ?: ""*/
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                print("")
+                val responseBody = response.body?.string()
+
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                print("")
+            }
+        })
+    }
+
+
     fun logIn(view: View) = runBlocking {
+        //val username = findViewById<EditText>(R.id.editTextTextPersonName3).text.toString()
+        //val token = view.findViewById<EditText>(R.id.editTextTextPersonName4).text.toString()
+        val username = "usuario1"
+        val token = "contrasea"
+        val url = "http://10.0.2.2:8080/backend/api/users/login"
+        //val response = makeHttpRequest(url)
+        //println(response)
+        coroutineScope {
+            launch {
+                val jsonBody = "{ \"nickname\": \\\"$username\\\", \"password\": \\\"$token\\\" }"
+                val result = try {
+                    val response = makeHttpRequest(url, jsonBody)
+                    print(response)
+                    delay(100L)
+                } catch (e: Exception) {
+                    Exception("Network request failed", e)
+                }
+                if (result != null) {
+                    goToMainActivity()
+                }
+            }
+        }
+    }
+
+    fun logIn1(view: View) = runBlocking {
         Log.d("logIn", "Button log in")
         // ToDo: username/email and password
         //val intent = Intent(this, Landing::class.java)
