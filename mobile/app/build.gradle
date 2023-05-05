@@ -54,4 +54,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
 
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
+
+    //charts
+    implementation 'com.diogobernardino:williamchart:3.10.1'
 }
