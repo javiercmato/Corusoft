@@ -11,7 +11,7 @@ object TokenInterceptor : Interceptor {
         var originalRequest = chain.request()
 
         // Obtener el token
-        var bearerToken: String = ""
+        var bearerToken = ""
         if (tokenManager.getToken() != null) {
             bearerToken = "Bearer ${tokenManager.getToken()}"
         }

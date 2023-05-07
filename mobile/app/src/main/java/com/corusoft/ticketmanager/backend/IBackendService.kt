@@ -21,40 +21,40 @@ import retrofit2.http.Path
 
 interface IBackendService {
     /* ******************** USER ENDPOINTS ******************** */
-    @POST("/users/register")
-    suspend fun register(params: RegisterUserParamsDTO): Response<AuthenticatedUserDTO>
+    @POST("users/register")
+    suspend fun register(@Body params: RegisterUserParamsDTO): Response<AuthenticatedUserDTO>
 
     @POST("users/login")
     suspend fun login(@Body params: LoginParamsDTO): Response<AuthenticatedUserDTO>
 
-    @POST("/users/login/token")
+    @POST("users/login/token")
     suspend fun loginFromToken(): Response<AuthenticatedUserDTO>
 
-    @POST("/users/subscribe/{userID}")
+    @POST("users/subscribe/{userID}")
     suspend fun subscribeToPremium(@Path("userID") id: Long): Response<SubscriptionDTO>
 
 
     /* ******************** TICKET ENDPOINTS ******************** */
-    @GET("/tickets/categories")
+    @GET("tickets/categories")
     suspend fun getAllCategories(): Response<List<CategoryDTO>>
 
-    @POST("/tickets/categories")
-    suspend fun createCustomizedCategory(params: CreateCustomizedCategoryParamsDTO): Response<CustomizedCategoryDTO>
+    @POST("tickets/categories")
+    suspend fun createCustomizedCategory(@Body params: CreateCustomizedCategoryParamsDTO): Response<CustomizedCategoryDTO>
 
-    @PUT("/tickets/categories/{categoryID}")
-    suspend fun updateCustomizedCategory(@Path("categoryID") id: Long, params: GenericValueDTO<Float>): Response<CustomizedCategoryDTO>
+    @PUT("tickets/categories/{categoryID}")
+    suspend fun updateCustomizedCategory(@Path("categoryID") id: Long, @Body params: GenericValueDTO<Float>): Response<CustomizedCategoryDTO>
 
-    @GET("/tickets/categories/{userID}")
+    @GET("tickets/categories/{userID}")
     suspend fun getCustomizedCategoriesByUser(@Path("userID") id: Long) : Response<List<CustomizedCategoryDTO>>
 
-    @POST("/tickets/parse")
-    suspend fun parseTicket(params: GenericValueDTO<String>): Response<ParsedTicketDTO>
+    @POST("tickets/parse")
+    suspend fun parseTicket(@Body params: GenericValueDTO<String>): Response<ParsedTicketDTO>
 
-    @POST("/tickets/")
-    suspend fun createTicket(params: CreateTicketParamsDTO): Response<TicketDTO>
+    @POST("tickets/")
+    suspend fun createTicket(@Body params: CreateTicketParamsDTO): Response<TicketDTO>
 
-    @POST("/share/{ticketID}")
-    suspend fun shareTicket(@Path("userID") id: Long, params: ShareTicketParamsDTO): Response<TicketDTO>
+    @POST("share/{ticketID}")
+    suspend fun shareTicket(@Path("userID") id: Long, @Body params: ShareTicketParamsDTO): Response<TicketDTO>
 
     /* ******************** STATS ENDPOINTS ******************** */
 

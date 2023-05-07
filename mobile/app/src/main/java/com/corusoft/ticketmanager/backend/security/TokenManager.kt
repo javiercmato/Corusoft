@@ -14,7 +14,8 @@ object TokenManager {
     }
 
 
-    fun saveToken(jwt: String) {
+    fun saveToken(jwt: String?) {
+        println("Storing JWT: $jwt")
         sharedPreferences.edit()
             .putString(JWT_KEY, jwt)
             .apply()
