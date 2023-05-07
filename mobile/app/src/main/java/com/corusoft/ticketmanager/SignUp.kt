@@ -4,39 +4,52 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import com.corusoft.ticketmanager.backend.BackendAPI
+import com.corusoft.ticketmanager.backend.dtos.users.RegisterUserParamsDTO
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class SignUp : AppCompatActivity() {
+    val backend: BackendAPI = BackendAPI()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
     }
 
-    fun signUp(view: View) = runBlocking {
-        Log.d("signUp", "Button sign up")
-        // ToDo: username/email, password, ...
-        //val intent = Intent(this, Landing::class.java)
-        //startActivity(intent)
-        coroutineScope {
-            launch {
-                // val jsonBody = "{ username: \"$username\", token: \"$token\", ... }"
-                val result = try {
-                    //signUp
-                    delay(1000L)
-                } catch (e: Exception) {
-                    Exception("Network request failed")
-                }
-                if (true) { //cambiar por when (Result)
-                    val intent = Intent(this@SignUp, Landing::class.java)
-                    startActivity(intent)
-                } else {
-                    //Error
+    fun backendSignUp(view: View) = runBlocking {
+        val firstName = findViewById<EditText>(R.id.editTextTextPersonName9).text.toString()
+        val lastName = findViewById<EditText>(R.id.editTextTextPersonName10).text.toString()
+        val nickname = findViewById<EditText>(R.id.editTextTextPersonName5).text.toString()
+        val email = findViewById<EditText>(R.id.editTextTextPersonName6).text.toString()
+        val password = findViewById<EditText>(R.id.editTextTextPersonName7).text.toString()
+        val params = RegisterUserParamsDTO(nickname, password, firstName + lastName, email)
+
+        try {
+            coroutineScope {
+                launch {
+                    var success = false;
+                    try {
+                        val response = backend.signUp(params)
+                        if (response != null) {
+                            success = true
+                            Log.i("SignUp", "Signup user '${response.nickname}' success")
+                        }
+                    } catch (ex: Exception) {
+                        success = false
+                    }
+
+                    if (success) {
+                        val intent = Intent(this@SignUp, Landing::class.java)
+                        startActivity(intent)
+                    }
                 }
             }
+        } catch (ex: Exception) {
+            System.err.println(ex.localizedMessage)
         }
     }
 
