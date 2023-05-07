@@ -48,7 +48,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/tickets/share/*").permitAll()                       // shareTicket
 
                 // STATISTICS ENDPOINTS
-                .requestMatchers(HttpMethod.GET, "/api/stats/spendingsPerMonth").permitAll()                 // getUserSpendingsPerMonth
+                .requestMatchers(HttpMethod.GET, "/api/stats/spendingsPerMonth").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/stats/wastesCategory").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/stats/spendingsThisMonth").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/stats/percentagePerCategory").permitAll()
 
                 // DENEGAR EL RESTO DE PETICIONES
                 .anyRequest().denyAll();

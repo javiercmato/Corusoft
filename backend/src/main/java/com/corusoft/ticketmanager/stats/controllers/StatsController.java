@@ -2,12 +2,15 @@ package com.corusoft.ticketmanager.stats.controllers;
 
 import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
 import com.corusoft.ticketmanager.stats.services.StatsService;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.WastesPerCategoryParams;
+import com.corusoft.ticketmanager.tickets.entities.Category;
 import com.corusoft.ticketmanager.tickets.services.TicketService;
 import com.corusoft.ticketmanager.users.services.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
@@ -43,6 +46,41 @@ public class StatsController {
             throws EntityNotFoundException {
 
         return statsService.getSpendingsByUser(userID);
+    }
+
+    @GetMapping(path = "/wastesCategory",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Map<YearMonth, Double> getWastesPerCategory(@RequestAttribute("userID") Long userID,
+                                                       @RequestBody @Validated WastesPerCategoryParams wastesPerCategoryParams)
+            throws EntityNotFoundException {
+
+        return statsService.getWastesPerCategory(userID, wastesPerCategoryParams.getCategoryId());
+    }
+
+    @GetMapping(path = "/spendingsThisMonth",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Map<Category, Double> getSpendingsThisMonth(@RequestAttribute("userID") Long userID)
+            throws EntityNotFoundException {
+
+        return statsService.getSpendingsThisMonth(userID);
+    }
+
+    @GetMapping(path = "/percentagePerCategory",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Map<Category, Double> getPercentagePerCategoryThisMonth(@RequestAttribute("userID") Long userID)
+            throws EntityNotFoundException {
+
+        return statsService.getPercentagePerCategoryThisMonth(userID);
     }
 
 }

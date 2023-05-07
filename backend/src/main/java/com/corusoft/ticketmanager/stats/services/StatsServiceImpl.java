@@ -1,9 +1,11 @@
 package com.corusoft.ticketmanager.stats.services;
 
 import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
+import com.corusoft.ticketmanager.tickets.entities.Category;
 import com.corusoft.ticketmanager.tickets.entities.CustomizedCategory;
 import com.corusoft.ticketmanager.tickets.entities.CustomizedCategoryID;
 import com.corusoft.ticketmanager.tickets.entities.Ticket;
+import com.corusoft.ticketmanager.tickets.repositories.CategoryRepository;
 import com.corusoft.ticketmanager.tickets.repositories.TicketRepository;
 import com.corusoft.ticketmanager.tickets.services.utils.TicketUtils;
 import com.corusoft.ticketmanager.users.entities.User;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.YearMonth;
 import java.util.*;
@@ -29,6 +32,8 @@ public class StatsServiceImpl implements StatsService {
     private UserUtils userUtils;
     @Autowired
     private TicketUtils ticketUtils;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
 
     /* ******************** CÁLCULO ESTADÍSTICAS ******************** */
@@ -38,12 +43,12 @@ public class StatsServiceImpl implements StatsService {
         User user = userUtils.fetchUserByID(userID);
 
         // Recuperar tickets del usuario
-        Set<Ticket> userTickets = user.getTickets();
+        Set<Ticket> tickets = user.getTickets();
 
         Map<YearMonth, Double> spendsByMonth = new TreeMap<>();
-        if (!userTickets.isEmpty()) {
+        if (!tickets.isEmpty()) {
             // Agrupar tickets por mes
-            spendsByMonth = userTickets.stream()
+            spendsByMonth = tickets.stream()
                     .collect(
                         // Agrupar tickets por año y mes de emisión
                         Collectors.groupingBy(ticket -> YearMonth.from(ticket.getEmittedAt()),
@@ -63,34 +68,72 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public Map<CustomizedCategory, Double> getSpendingsThisMonth(Long userID) throws EntityNotFoundException {
-        return null;
+    public Map<Category, Double> getSpendingsThisMonth(Long userID) throws EntityNotFoundException {
+
+        User user = userUtils.fetchUserByID(userID);
+        LocalDateTime thisMonth = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0)
+                .withNano(0).withDayOfMonth(1);
+        List<Ticket> tickets = ticketRepo.getTicketsthisMonth(user, thisMonth);
+
+        Map<Category, Double> spendingsThisMonth = new HashMap<>();
+
+        if (!tickets.isEmpty()) {
+            // Agrupar tickets por mes
+            spendingsThisMonth = tickets.stream()
+                    .collect(
+                            Collectors.groupingBy(ticket -> ticket.getCustomizedCategory().getCategory(),
+                                    TreeMap::new,
+                                    Collectors.summingDouble(ticket ->
+                                            roundDoubleWithTwoDecimals(ticket.getAmount().doubleValue())
+                                    )
+                            )
+                    );
+
+            // Redondear números
+            spendingsThisMonth.replaceAll((key, value) -> roundDoubleWithTwoDecimals(value));
+        }
+
+
+        return spendingsThisMonth;
     }
 
     @Override
-    public Map<CustomizedCategory, Double> getPercentagePerCategoryThisMonth(Long userID) throws EntityNotFoundException {
-        return null;
+    public Map<Category, Double> getPercentagePerCategoryThisMonth(Long userID) throws EntityNotFoundException {
+
+        User user = userUtils.fetchUserByID(userID);
+        Map<Category, Double> spendings = getSpendingsThisMonth(userID);
+        Map<Category, Double> percentagePerCategory = new HashMap<>();
+
+        if (!spendings.isEmpty()) {
+
+            Double totalGastado = spendings.values().stream().reduce((double) 0, Double::sum);
+            percentagePerCategory = spendings.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            e -> BigDecimal.valueOf(e.getValue())
+                                    .divide(BigDecimal.valueOf(totalGastado), 2, RoundingMode.HALF_DOWN)
+                                    .doubleValue()
+                    ));
+        }
+
+        return percentagePerCategory;
     }
 
     @Override
     public Map<YearMonth, Double> getWastesPerCategory(Long userID, Long categoryID) throws EntityNotFoundException {
-        // Comprobar si existe el usuario y la categoría customizada.
-        User user = userUtils.fetchUserByID(userID);
-        CustomizedCategory customizedCategory = ticketUtils.fetchCustomizedCategoryById(new
-                CustomizedCategoryID(user.getId(), categoryID));
 
-        List<Ticket> tickets = ticketRepo.getTicketByCategoryId(customizedCategory.getCategory().getId());
+        User user = userUtils.fetchUserByID(userID);
+        Category category = ticketUtils.fetchCategoryById(categoryID);
+
+        List<Ticket> tickets = ticketRepo.getTicketByCategoryId(categoryID);
         Map<YearMonth, Double> spendsPerCategoryMonth = new TreeMap<>();
 
         if (!tickets.isEmpty()) {
 
             spendsPerCategoryMonth = tickets.stream()
                     .collect(
-                            // Agrupar tickets por año y mes de emisión
                             Collectors.groupingBy(ticket -> YearMonth.from(ticket.getEmittedAt()),
-                                    // Insertándolos en un Map
                                     TreeMap::new,
-                                    // Para cada grupo, sumar la cantidad de todos sus tickets
                                     Collectors.summingDouble(ticket ->
                                             roundDoubleWithTwoDecimals(ticket.getAmount().doubleValue())
                                     )

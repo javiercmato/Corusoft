@@ -42,6 +42,19 @@ public class TicketUtils {
     }
 
     /**
+     * Busca una categoría por su id en la base de datos.
+     *
+     * @param categoryId de la categoría a buscar
+     * @return Categoría encontrada
+     * @throws EntityNotFoundException
+     */
+    public Category fetchCategoryById(Long categoryId) throws EntityNotFoundException {
+        return categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new EntityNotFoundException(Category.class.getSimpleName(), categoryId));
+    }
+
+
+    /**
      * Busca una categoría customizada en la base de datos.
      *
      * @param customizedCategoryID de la categoría customizada a buscar.
