@@ -15,12 +15,12 @@ import kotlinx.coroutines.runBlocking
 class Landing : AppCompatActivity() {
     companion object {
         private val donutSet = listOf(
-            20f, 80f, 100f
+            20F, 80F, 100F
         )
         private val horizontalBarSet = listOf(
-            "PORRO" to 5F, "FUSCE" to 6.4F, "EGET" to 3F
+            "FOOD" to 85.47F, "SHOPPING" to 62.91F, "ENTERTAINMENT" to 25.93F
         )
-        private const val animationDuration = 1000L
+        private const val animationDuration = 1500L
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,9 +33,9 @@ class Landing : AppCompatActivity() {
         val barChartView: HorizontalBarChartView = findViewById(R.id.barChartHorizontal)
 
         donutChartView.donutColors = intArrayOf(
-            Color.parseColor("#FFFFFF"),
-            Color.parseColor("#9EFFFFFF"),
-            Color.parseColor("#8DFFFFFF")
+            Color.parseColor("#7bde3a"),
+            Color.parseColor("#5ea62e"),
+            Color.parseColor("#3d6b1e")
         )
 
         donutChartView.animation.duration = animationDuration
