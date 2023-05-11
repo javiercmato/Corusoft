@@ -12,5 +12,6 @@ data class TicketDTO(
     val picture: String?,
     val store: String?,
     val customizedCategoryID: CustomizedCategoryID?,
-    val creatorID: Long?
+    val creatorID: Long?,
+    var expandable: Boolean = false
 )
