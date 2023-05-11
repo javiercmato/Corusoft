@@ -60,4 +60,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
     
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
+
+    //charts
+    implementation 'com.diogobernardino:williamchart:3.10.1'
 }
