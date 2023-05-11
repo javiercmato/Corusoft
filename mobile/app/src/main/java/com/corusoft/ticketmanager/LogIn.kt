@@ -120,6 +120,8 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
                 }
             }
         } catch (ex: Exception) {
+            val intent = Intent(this@LogIn, Landing::class.java)
+            startActivity(intent)
             System.err.println(ex.localizedMessage)
         }
 
