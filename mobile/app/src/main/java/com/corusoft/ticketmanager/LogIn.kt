@@ -115,25 +115,9 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
         val nickname = findViewById<EditText>(R.id.editTextTextPersonName3).text.toString()
         val password = findViewById<EditText>(R.id.editTextTextPersonName4).text.toString()
         val params = LoginParamsDTO(nickname, password)
-        //var response: UserDTO? = null
 
         // Realizar petición a backend
         val backend = BackendAPI()
-
-        //lifecycleScope.launch {
-        //    try {
-        //        response = backend.login(params)
-        //    } catch (ex: GlobalErrorException) {
-        //        System.err.println(ex.message)
-        //        backendError = backend.errorManager.getGlobalError()
-        //    } catch (ex: Exception) {
-        //        System.err.println(ex.localizedMessage)
-        //        runOnUiThread {
-        //            Toast.makeText(applicationContext, "Exception: " + ex.message, Toast.LENGTH_SHORT).show()
-        //        }
-        //    }
-        //}
-
         var response: UserDTO?
         lifecycleScope.launch {
             try {
@@ -144,6 +128,8 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
                     "Usuario ${response?.nickname} logeado",
                     Toast.LENGTH_SHORT
                 ).show()
+                val intent = Intent(this@LogIn, Landing::class.java)
+                startActivity(intent)
             } catch (ex: GlobalErrorException) {
                 Toast.makeText(
                     applicationContext,
@@ -154,7 +140,7 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
                 System.err.println(ex.message)
                 Toast.makeText(
                     applicationContext,
-                    "Error: " + ex.message,
+                    ex.message,
                     Toast.LENGTH_SHORT
                 ).show()
             }

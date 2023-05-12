@@ -41,7 +41,7 @@ class BackendAPI {
          val httpClient: OkHttpClient = OkHttpClient.Builder()
              .addInterceptor(TokenInterceptor)
              //.addInterceptor(BackendErrorInterceptor)
-             .build();
+             .build()
 
         val moshi = Moshi.Builder()
             .addLast(KotlinJsonAdapterFactory())
@@ -92,29 +92,28 @@ class BackendAPI {
             throw GlobalErrorException(errorCause.globalError.toString())
         }
 
-
         return result.get()
     }
 
     suspend fun signUp(params: RegisterUserParamsDTO): UserDTO {
+        val service = getInstance()
+        val response : Response<AuthenticatedUserDTO>
         val result = AtomicReference<UserDTO>()
 
         try {
-            val backendResponse = getInstance().register(params).execute()
-
-            if (backendResponse.isSuccessful) {
-                val body = backendResponse.body()!!
-                body.serviceToken?.let { saveTokenInStorage(it) }
-                result.set(body.user)
-            } else {
-                val bodyError = backendResponse.errorBody().toString()
-                val globalError = jsonMapper.readValue(bodyError, GlobalError::class.java)
-                errorManager.setGlobalError(globalError)
-
-                throw GlobalErrorException(globalError.globalError)
-            }
-        } catch (ex: IOException) {
+            response = service.register(params)
+        } catch (ex: Exception) {
             throw BackendConnectionException()
+        }
+
+        if (response.isSuccessful) {
+            val body = response.body()!!
+            result.set(body.user)
+        } else {
+            val errorBody = response.errorBody()!!
+            val errorCause = jsonMapper.readValue(errorBody.string(), GlobalError::class.java)
+
+            throw GlobalErrorException(errorCause.globalError.toString())
         }
 
         return result.get()
@@ -147,7 +146,7 @@ class BackendAPI {
         val response = getInstance().subscribeToPremium(userID)
         val responseBody = response.body()!!
 
-        return responseBody!!
+        return responseBody
     }
 
     suspend fun getAllCategories(): List<CategoryDTO> {

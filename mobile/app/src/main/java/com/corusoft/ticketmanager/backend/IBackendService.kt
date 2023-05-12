@@ -12,7 +12,6 @@ import com.corusoft.ticketmanager.backend.dtos.users.AuthenticatedUserDTO
 import com.corusoft.ticketmanager.backend.dtos.users.LoginParamsDTO
 import com.corusoft.ticketmanager.backend.dtos.users.RegisterUserParamsDTO
 import com.corusoft.ticketmanager.backend.dtos.users.SubscriptionDTO
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -23,7 +22,7 @@ import retrofit2.http.Path
 interface IBackendService {
     /* ******************** USER ENDPOINTS ******************** */
     @POST("users/register")
-    suspend fun register(@Body params: RegisterUserParamsDTO): Call<AuthenticatedUserDTO>
+    suspend fun register(@Body params: RegisterUserParamsDTO): Response<AuthenticatedUserDTO>
 
     @POST("users/login")
     suspend fun login(@Body params: LoginParamsDTO): Response<AuthenticatedUserDTO>
