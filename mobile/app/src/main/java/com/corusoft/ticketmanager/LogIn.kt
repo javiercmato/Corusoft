@@ -8,8 +8,12 @@ import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.corusoft.ticketmanager.backend.BackendAPI
 import com.corusoft.ticketmanager.backend.dtos.users.LoginParamsDTO
+import com.corusoft.ticketmanager.backend.dtos.users.UserDTO
+import com.corusoft.ticketmanager.backend.exceptions.BackendConnectionException
+import com.corusoft.ticketmanager.backend.exceptions.GlobalErrorException
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -24,7 +28,6 @@ import kotlinx.coroutines.runBlocking
 
 
 class LogIn : AppCompatActivity(), View.OnClickListener {
-    val backend: BackendAPI = BackendAPI()
 
     // instance variable
     private lateinit var mGoogleSignInClient: GoogleSignInClient
@@ -108,19 +111,54 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
     }
 
 
-    fun backendLogin(view: View) = runBlocking {
+    fun backendLogin(view: View) {
         val nickname = findViewById<EditText>(R.id.editTextTextPersonName3).text.toString()
         val password = findViewById<EditText>(R.id.editTextTextPersonName4).text.toString()
+        val params = LoginParamsDTO(nickname, password)
+        //var response: UserDTO? = null
 
-        try {
-            coroutineScope {
-                launch {
-                    val params = LoginParamsDTO(nickname, password)
-                    val response = backend.login(params)
-                }
+        // Realizar petición a backend
+        val backend = BackendAPI()
+
+        //lifecycleScope.launch {
+        //    try {
+        //        response = backend.login(params)
+        //    } catch (ex: GlobalErrorException) {
+        //        System.err.println(ex.message)
+        //        backendError = backend.errorManager.getGlobalError()
+        //    } catch (ex: Exception) {
+        //        System.err.println(ex.localizedMessage)
+        //        runOnUiThread {
+        //            Toast.makeText(applicationContext, "Exception: " + ex.message, Toast.LENGTH_SHORT).show()
+        //        }
+        //    }
+        //}
+
+        var response: UserDTO?
+        lifecycleScope.launch {
+            try {
+                response = backend.login(params)
+                println("Login.kt ha recibido " + response.toString())
+                Toast.makeText(
+                    applicationContext,
+                    "Usuario ${response?.nickname} logeado",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } catch (ex: GlobalErrorException) {
+                Toast.makeText(
+                    applicationContext,
+                    ex.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            } catch (ex: BackendConnectionException) {
+                System.err.println(ex.message)
+                Toast.makeText(
+                    applicationContext,
+                    "Error: " + ex.message,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-        } catch (ex: Exception) {
-            System.err.println(ex.localizedMessage)
+
         }
 
     }
