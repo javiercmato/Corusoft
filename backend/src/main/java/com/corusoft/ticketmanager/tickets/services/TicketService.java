@@ -22,6 +22,8 @@ public interface TicketService {
 
     Ticket createTicket(CreateTicketParamsDTO params) throws EntityNotFoundException, UnableToParseImageException;
 
-    Ticket shareTicket(Long userId, Long ticketId, Long receiverID) throws EntityNotFoundException, TicketAlreadySharedException,
+    Ticket shareTicket(Long userID, Long ticketID, Long receiverID) throws EntityNotFoundException, TicketAlreadySharedException,
             PermissionException;
+
+    void deleteTicket(Long userID, Long ticketID) throws EntityNotFoundException, TicketNotInPropertyException;
 }

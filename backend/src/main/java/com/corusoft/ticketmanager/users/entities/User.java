@@ -102,7 +102,8 @@ public class User {
 
     /**
      * Asigna un ticket al usuario actual.
-     * @param ticket - Ticket a asignar
+     *
+     * @param ticket Ticket a asignar
      */
     @Transient
     public void assignTicket(Ticket ticket) {
@@ -112,6 +113,20 @@ public class User {
 
         tickets.add(ticket);
         ticket.setCreator(this);
+    }
+
+    /**
+     * Indica si el usuario ha compartido el ticket recibido con otro usuario
+     *
+     * @param ticket Ticket a comprobar
+     * @return <c>true</c> si usuario ha compartido el ticket
+     */
+    @Transient
+    public boolean hasSharedTicket(Ticket ticket) {
+        if (this.sharedTickets == null)
+            return false;
+
+        return this.sharedTickets.contains(ticket);
     }
 
 }

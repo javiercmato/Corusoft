@@ -252,10 +252,38 @@ public class TicketControllerTest {
         String encodedResponseBodyContent = this.jsonMapper.writeValueAsString(TicketConversor.toTicketDTO(expectedResponse));
 
         // Comprobar resultados
-       actions
-               .andExpect(status().isOk())
-               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(content().string(encodedResponseBodyContent));
+        actions
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(encodedResponseBodyContent));
+    }
+
+    @Test
+    void whenDeleteTicket_thenNoContent() throws Exception {
+        // Crear datos de prueba
+        User author = testUtils.generateValidUser();
+        AuthenticatedUserDTO authorAuthDTO = testUtils.generateAuthenticatedUser(author);
+        JwtData authorJwtData = jwtGenerator.extractInfoFromToken(authorAuthDTO.getServiceToken());
+        Category validCategory = testUtils.registerValidCategory();
+        CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(author, validCategory);
+        ParsedTicketData parsedTicketData = testUtils.registerParsedTicketData();
+        Ticket existentTicket = testUtils.registerTicket(customizedCategory, author, parsedTicketData);
+
+        // Ejecutar funcionalidades
+        String endpoint = API_ENDPOINT + "/" + existentTicket.getId();
+        ResultActions actions = mockMvc.perform(
+                delete(endpoint)
+                        // Valores anotados como @RequestAttribute
+                        .requestAttr(USER_ID_ATTRIBUTE_NAME, authorJwtData.getUserID())
+                        .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, authorJwtData.toString())
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authorAuthDTO.getServiceToken())
+                        .header(HttpHeaders.ACCEPT_LANGUAGE, locale.getLanguage())
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // Comprobar resultados
+        actions
+                .andExpect(status().isNoContent());
     }
 
 }

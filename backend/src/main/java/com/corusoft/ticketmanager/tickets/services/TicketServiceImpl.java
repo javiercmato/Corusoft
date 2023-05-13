@@ -161,10 +161,10 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Ticket shareTicket(Long userId, Long ticketId, Long receiverID) throws EntityNotFoundException,
+    public Ticket shareTicket(Long userID, Long ticketId, Long receiverID) throws EntityNotFoundException,
             TicketAlreadySharedException, PermissionException {
         // Comprobar si existen el autor, el receptor y el ticket
-        User owner = userUtils.fetchUserByID(userId);
+        User owner = userUtils.fetchUserByID(userID);
         User receiver = userUtils.fetchUserByID(receiverID);
         Ticket ticket = ticketUtils.fetchTicketById(ticketId);
 
@@ -180,7 +180,7 @@ public class TicketServiceImpl implements TicketService {
 
         // Comprobar que el receptor no haya recibido el ticket actual previamente
         if (receiver.getSharedTickets().contains(ticket)) {
-            throw new TicketAlreadySharedException(TicketService.class.getSimpleName(), receiver.getNickname());
+            throw new TicketAlreadySharedException(Ticket.class.getSimpleName(), receiver.getNickname());
         }
 
         // Compartir el ticket con el receptor
@@ -189,5 +189,18 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepo.save(ticket);
     }
 
+    @Override
+    public void deleteTicket(Long userID, Long ticketID) throws EntityNotFoundException, TicketNotInPropertyException {
+        // Comprobar si existe el usuario y el ticket
+        User owner = userUtils.fetchUserByID(userID);
+        Ticket ticket = ticketUtils.fetchTicketById(ticketID);
 
+        // Comprobar que el ticket a borrar no haya sido compartido
+        // Aunque el usuario sea propietario del ticket, no puede borrar un ticket que ya ha compartido con otro usuario
+        if (owner.hasSharedTicket(ticket)) {
+            throw new TicketNotInPropertyException();
+        }
+
+        ticketRepo.delete(ticket);
+    }
 }

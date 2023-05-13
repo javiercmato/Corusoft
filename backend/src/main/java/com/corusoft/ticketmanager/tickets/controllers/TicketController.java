@@ -11,8 +11,7 @@ import com.corusoft.ticketmanager.tickets.services.TicketService;
 import com.corusoft.ticketmanager.users.services.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +33,7 @@ public class TicketController {
     /* ******************** TRADUCCIONES DE EXCEPCIONES ******************** */
     public static final String UNABLE_TO_PARSE_IMAGE_EXCEPTION_KEY = "tickets.exceptions.UnableToParseImageException";
     public static final String TICKET_ALREADY_SHARED_EXCEPTION_KEY = "tickets.exceptions.TicketAlreadySharedException";
+    public static final String TICKET_NOT_IN_PROPERTY_EXCEPTION_KEY = "tickets.exceptions.TicketNotInPropertyException";
 
     /* ******************** MANEJADORES DE EXCEPCIONES ******************** */
     @ExceptionHandler(UnableToParseImageException.class)
@@ -47,7 +47,7 @@ public class TicketController {
     }
 
     @ExceptionHandler(TicketAlreadySharedException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)     // 400
     @ResponseBody
     public ErrorsDTO handleTicketAlreadySharedException(TicketAlreadySharedException exception, Locale locale) {
         String exceptionMessage = messageSource.getMessage(
@@ -56,16 +56,27 @@ public class TicketController {
 
         String globalErrorMessage = messageSource.getMessage(
                 TICKET_ALREADY_SHARED_EXCEPTION_KEY,
-                new Object[] {exceptionMessage, exception.getKey().toString()},
+                new Object[]{exceptionMessage, exception.getKey().toString()},
                 TICKET_ALREADY_SHARED_EXCEPTION_KEY,
                 locale
         );
 
         return new ErrorsDTO(globalErrorMessage);
     }
+
+    @ExceptionHandler(TicketNotInPropertyException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)     // 401
+    @ResponseBody
+    public ErrorsDTO handleTicketNotInPropertyException(TicketNotInPropertyException exception, Locale locale) {
+        String errorMessage = messageSource.getMessage(
+                TICKET_NOT_IN_PROPERTY_EXCEPTION_KEY, null, TICKET_NOT_IN_PROPERTY_EXCEPTION_KEY, locale);
+
+        return new ErrorsDTO(errorMessage);
+    }
+
     /* ******************** ENDPOINTS ******************** */
     @GetMapping(path = "/categories",
-        produces = MediaType.APPLICATION_JSON_VALUE
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public List<Category> getAllCategories() {
         return ticketService.getAllCategories();
@@ -153,23 +164,42 @@ public class TicketController {
         return TicketConversor.toTicketDTO(createdTicket);
     }
 
-    @PostMapping(path = "/share/{ticketId}",
+    @PostMapping(path = "/share/{ticketID}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public TicketDTO shareTicket(@RequestAttribute("userID") Long userID,
-                            @PathVariable("ticketId") Long ticketID,
-                            @Validated @RequestBody ShareTicketParamsDTO params)
+                                 @PathVariable("ticketID") Long ticketID,
+                                 @Validated @RequestBody ShareTicketParamsDTO params)
             throws EntityNotFoundException, TicketAlreadySharedException, PermissionException {
         // Comprobar que el usuario actual y el usuario que solicita la operación son el mismo
         if (!userUtils.doUsersMatch(userID, params.getSenderID()))
             throw new PermissionException();
 
+        // Comprobar que usuario no intenta compartir ticket consigo mismo
+        if (userUtils.doUsersMatch(params.getSenderID(), params.getReceiverID()))
+            throw new PermissionException();
+
         Ticket ticket = ticketService.shareTicket(userID, ticketID, params.getReceiverID());
 
         return TicketConversor.toTicketDTO(ticket);
+    }
+
+    @DeleteMapping(path = "/{ticketID}",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public ResponseEntity<Void> deleteTicket(@RequestAttribute("userID") Long userID,
+                                             @PathVariable("ticketID") Long ticketID)
+            throws EntityNotFoundException, TicketNotInPropertyException {
+        // Llamada al servicio
+        ticketService.deleteTicket(userID, ticketID);
+
+        // Generar respuesta
+        return ResponseEntity.noContent().build();
     }
 
 
