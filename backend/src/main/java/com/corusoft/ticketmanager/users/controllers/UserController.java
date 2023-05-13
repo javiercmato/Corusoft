@@ -137,6 +137,18 @@ public class UserController {
         return SubscriptionConversor.toSubscriptionDTO(subscription);
     }
 
+    @GetMapping (path = "",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public UserDTO findUserByNameOrNickname(@RequestParam("name") String query)
+            throws EntityNotFoundException {
+        // Busca al usuario
+        User user = userService.findByNameOrNickname(query);
+
+        // Devuelve los datos del usuario encontrado
+        return UserConversor.toUserDTO(user);
+    }
+
     /* ******************** FUNCIONES AUXILIARES ******************** */
 
     /**

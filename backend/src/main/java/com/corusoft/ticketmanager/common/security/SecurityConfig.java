@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()                           // login
                 .requestMatchers(HttpMethod.POST, "/api/users/login/token").permitAll()                     // loginFromToken
                 .requestMatchers(HttpMethod.POST, "/api/users/subscribe/*").permitAll()                     // subscribeToPremium
+                .requestMatchers(HttpMethod.GET, "/api/users").permitAll()                                  // findUserByNameOrNickname
 
                 // TICKET ENDPOINTS
                 .requestMatchers(HttpMethod.GET, "/api/tickets/categories").permitAll()                     // getAllCategories
@@ -45,6 +46,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/tickets/categories/*").permitAll()                   // getCustomizedCategoriesByUser
                 .requestMatchers(HttpMethod.POST, "/api/tickets/parse").permitAll()                         // parseTicket
                 .requestMatchers(HttpMethod.POST, "/api/tickets/").permitAll()                              // createTicket
+                .requestMatchers(HttpMethod.DELETE, "/api/tickets/*").permitAll()                           // deleteTicket
                 .requestMatchers(HttpMethod.POST, "/api/tickets/share/*").permitAll()                       // shareTicket
 
                 // STATISTICS ENDPOINTS

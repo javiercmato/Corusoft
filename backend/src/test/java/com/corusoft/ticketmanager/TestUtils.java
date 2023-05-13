@@ -22,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.*;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 @Component
@@ -32,6 +33,7 @@ public class TestUtils {
     public final String DEFAULT_PASSWORD = "Bar";
     public final String DEFAULT_CATEGORY_NAME = "Category";
     public final Float DEFAULT_CATEGORY_MAX_WASTE_LIMIT = 100f;
+    public final Float DEFAULT_TICKET_AMMOUNT = 1.00F;
     public final String TESTS_ASSETS_PATH = "src/test/resources/assets/";
     public final String DEFAULT_TEST_TICKET_NAME = "ticket-test.jpeg";
     public final String DEFAULT_TEST_TICKET_BASE64_NAME = "ticket-test-base64string.txt";
@@ -84,6 +86,16 @@ public class TestUtils {
         user.setRegistered_at(LocalDateTime.now());
 
         return user;
+    }
+
+    public User registerValidUser() {
+        return registerValidUser(DEFAULT_NICKNAME);
+    }
+
+    public User registerValidUser(String nickname) {
+        User validUser = this.generateValidUser(nickname);
+
+        return userRepository.save(validUser);
     }
 
     /**
@@ -209,7 +221,7 @@ public class TestUtils {
         return Ticket.builder()
                 .name(DEFAULT_TEST_TICKET_NAME)
                 .customizedCategory(customizedCategory)
-                .amount(1.00F)
+                .amount(DEFAULT_TICKET_AMMOUNT)
                 .currency("Currency")
                 .picture(ticketPicture)
                 .store("store")
@@ -227,7 +239,7 @@ public class TestUtils {
         Ticket ticket = Ticket.builder()
                 .name(DEFAULT_TEST_TICKET_NAME)
                 .customizedCategory(customizedCategory)
-                .amount(1.00F)
+                .amount(DEFAULT_TICKET_AMMOUNT)
                 .currency("Currency")
                 .picture(ticketPicture)
                 .store("store")
@@ -277,6 +289,21 @@ public class TestUtils {
                 .totalAmount(data.getTotalAmount())
                 .ticketData(imageB64String)
                 .name(DEFAULT_TEST_TICKET_NAME)
+                .build();
+    }
+
+    public CreateTicketParamsDTO parseTicketToCreateTicketParamsDTO(Ticket ticket) {
+        String emmitedTime = ticket.getEmittedAt().format(DateTimeFormatter.ofPattern("HH:mm"));
+
+        return CreateTicketParamsDTO.builder()
+                .userID(ticket.getCreator().getId())
+                .supplier(ticket.getStore())
+                .categoryID(ticket.getCustomizedCategory().getId().getCategoryID())
+                .emmitedAtDate(ticket.getEmittedAt().toLocalDate())
+                .emmitedAtTime(emmitedTime)
+                .currency(ticket.getCurrency())
+                .totalAmount(ticket.getAmount())
+                .name(ticket.getName())
                 .build();
     }
 

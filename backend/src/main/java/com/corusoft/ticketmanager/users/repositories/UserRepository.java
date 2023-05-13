@@ -16,5 +16,9 @@ public interface UserRepository extends ListCrudRepository<User, Long> {
      */
     Optional<User> findByNicknameIgnoreCase(String nickname);
 
+    /**
+     * Recupera un usuario por su nombre, ignorando mayusculas o minúsculas
+     */
+    Optional<User> findByNameIgnoreCase(String name);
 
 }

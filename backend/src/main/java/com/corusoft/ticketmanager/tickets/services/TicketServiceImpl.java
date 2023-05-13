@@ -93,6 +93,10 @@ public class TicketServiceImpl implements TicketService {
     /* ******************** FUNCIONALIDADES TICKETS ******************** */
     @Override
     public ParsedTicketData parseTicketContent(String ticketContentAsB64) throws UnableToParseImageException {
+        // Si no hay imagen se lanza excepción
+        if (ticketContentAsB64 == null)
+            throw new UnableToParseImageException();
+
         // Parsear ticket en la API
         ReceiptV4DocumentPrediction ticketPrediction;
         try {

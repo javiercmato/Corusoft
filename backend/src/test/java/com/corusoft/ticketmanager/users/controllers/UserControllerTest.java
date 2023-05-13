@@ -6,6 +6,7 @@ import com.corusoft.ticketmanager.common.jwt.JwtData;
 import com.corusoft.ticketmanager.common.jwt.JwtGenerator;
 import com.corusoft.ticketmanager.users.controllers.dtos.*;
 import com.corusoft.ticketmanager.users.controllers.dtos.conversors.SubscriptionConversor;
+import com.corusoft.ticketmanager.users.controllers.dtos.conversors.UserConversor;
 import com.corusoft.ticketmanager.users.entities.Subscription;
 import com.corusoft.ticketmanager.users.entities.User;
 import com.corusoft.ticketmanager.users.repositories.UserRepository;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Locale;
 
 import static com.corusoft.ticketmanager.common.security.JwtFilter.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -187,6 +189,27 @@ public class UserControllerTest {
         Subscription subscription = validUser.getSubscriptions().stream().findFirst().get();
         SubscriptionDTO expectedSubscriptionDTO = SubscriptionConversor.toSubscriptionDTO(subscription);
         String encodedResponseBodyContent = this.jsonMapper.writeValueAsString(expectedSubscriptionDTO);
+        subscribeAction.andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(encodedResponseBodyContent));
+    }
+
+    @Test
+    void whenFindUserByNameOrNickname_thenUserDTO() throws Exception {
+        // Crear datos de prueba
+        User validUser = testUtils.registerValidUser();
+
+        // Ejecutar funcionalidades
+        String endpointAddress = API_ENDPOINT;
+        ResultActions subscribeAction = mockMvc.perform(
+                get(endpointAddress)
+                        .header(HttpHeaders.ACCEPT_LANGUAGE, locale.getLanguage())
+                        .queryParam("name", validUser.getName())
+        );
+
+        // Comprobar resultados
+        UserDTO expectedResponse = UserConversor.toUserDTO(validUser);
+        String encodedResponseBodyContent = this.jsonMapper.writeValueAsString(expectedResponse);
         subscribeAction.andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(encodedResponseBodyContent));
