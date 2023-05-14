@@ -11,7 +11,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
-public class EmisionDateRangeCriteria implements FilterCriteria {
+public class EmisionDateCriteria implements FilterCriteria {
     private LocalDateTime initialDate;
     private LocalDateTime finalDate;
 

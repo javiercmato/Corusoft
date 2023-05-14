@@ -22,4 +22,7 @@ public interface TicketRepository extends ListCrudRepository<Ticket, Long>,
             " t.creator = ?1 AND " +
             " t.registeredAt > ?2 ")
     List<Ticket> getTicketsthisMonth(User user, LocalDateTime thisMonth);
+
+    List<Ticket> findDistinctByCreatorOrderByEmittedAtDesc(User creator);
+
 }

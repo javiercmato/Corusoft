@@ -2,6 +2,7 @@ package com.corusoft.ticketmanager.tickets.services;
 
 import com.corusoft.ticketmanager.common.exceptions.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateTicketParamsDTO;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.filters.TicketFilterParamsDTO;
 import com.corusoft.ticketmanager.tickets.entities.*;
 
 import java.util.List;
@@ -28,4 +29,6 @@ public interface TicketService {
     void deleteTicket(Long userID, Long ticketID) throws EntityNotFoundException, TicketNotInPropertyException;
 
     Ticket getTicketDetails(Long userID, Long ticketID) throws EntityNotFoundException, TicketNotInPropertyException;
+
+    List<Ticket> filterUserTicketsByCriteria(Long userID, TicketFilterParamsDTO params) throws EntityNotFoundException;
 }

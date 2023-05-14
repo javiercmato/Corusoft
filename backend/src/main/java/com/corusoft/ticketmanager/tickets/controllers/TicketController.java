@@ -6,6 +6,7 @@ import com.corusoft.ticketmanager.common.exceptions.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.CategoryConversor;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.TicketConversor;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.filters.TicketFilterParamsDTO;
 import com.corusoft.ticketmanager.tickets.entities.*;
 import com.corusoft.ticketmanager.tickets.services.TicketService;
 import com.corusoft.ticketmanager.users.services.utils.UserUtils;
@@ -215,6 +216,26 @@ public class TicketController {
         Ticket ticket = ticketService.getTicketDetails(userID, ticketID);
 
         return TicketConversor.toTicketDTO(ticket);
+    }
+
+    @PutMapping(path = "/{userID}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<TicketDTO> filterUserTicketsByCriteria(@RequestAttribute("userID") Long userID,
+                                                       @PathVariable("userID") Long pathUserID,
+                                                       @Validated @RequestBody TicketFilterParamsDTO params)
+            throws PermissionException, EntityNotFoundException {
+        // Comprobar que el usuario actual y el usuario que solicita la operación son el mismo
+        if (!userUtils.doUsersMatch(userID, pathUserID))
+            throw new PermissionException();
+
+        // Llamada al servicio
+        List<Ticket> tickets = ticketService.filterUserTicketsByCriteria(userID, params);
+
+        return TicketConversor.toTicketDTOList(tickets);
     }
 
     /* ******************** FUNCIONES AUXILIARES ******************** */

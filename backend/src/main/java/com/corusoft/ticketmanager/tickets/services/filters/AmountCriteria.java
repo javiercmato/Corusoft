@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
-public class AmountRangeCriteria implements FilterCriteria {
+public class AmountCriteria implements FilterCriteria {
     private Float lowerBound;
     private Float upperBound;
 

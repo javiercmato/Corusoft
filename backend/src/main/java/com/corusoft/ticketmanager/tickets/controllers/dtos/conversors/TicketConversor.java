@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TicketConversor {
@@ -45,8 +47,13 @@ public class TicketConversor {
                 .creatorID(entity.getCreator().getId())
                 .build();
     }
-    /* ******************** Convertir a conjunto de DTOs ******************** */
 
+    /* ******************** Convertir a conjunto de DTOs ******************** */
+    public static List<TicketDTO> toTicketDTOList(List<Ticket> entityList) {
+        return entityList.stream()
+                .map(TicketConversor::toTicketDTO)
+                .collect(Collectors.toList());
+    }
 
     /* ******************** Convertir a Entidad ******************** */
 

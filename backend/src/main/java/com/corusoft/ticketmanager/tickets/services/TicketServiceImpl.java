@@ -2,8 +2,10 @@ package com.corusoft.ticketmanager.tickets.services;
 
 import com.corusoft.ticketmanager.common.exceptions.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateTicketParamsDTO;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.filters.TicketFilterParamsDTO;
 import com.corusoft.ticketmanager.tickets.entities.*;
 import com.corusoft.ticketmanager.tickets.repositories.*;
+import com.corusoft.ticketmanager.tickets.services.filters.TicketFilter;
 import com.corusoft.ticketmanager.tickets.services.utils.TicketUtils;
 import com.corusoft.ticketmanager.users.entities.User;
 import com.corusoft.ticketmanager.users.services.utils.UserUtils;
@@ -225,5 +227,20 @@ public class TicketServiceImpl implements TicketService {
 
         // Recuperar ticket y devolverlo
         return ticketUtils.fetchTicketById(ticketID);
+    }
+
+    @Override
+    public List<Ticket> filterUserTicketsByCriteria(Long userID, TicketFilterParamsDTO params) throws EntityNotFoundException {
+        // Comprobar si existe el usuari
+        User user = userUtils.fetchUserByID(userID);
+
+        // Recuperar todos los tickets del usuario
+        List<Ticket> userTickets = ticketRepo.findDistinctByCreatorOrderByEmittedAtDesc(user);
+
+        // Filtrar los tickets según los criterios recibidos
+        TicketFilter ticketFilter = TicketFilter.builder().buildFromDTO(params);
+        List<Ticket> filteredTickets = ticketFilter.filter(userTickets);
+
+        return filteredTickets;
     }
 }
