@@ -7,6 +7,7 @@ import com.corusoft.ticketmanager.common.jwt.JwtGenerator;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.CategoryConversor;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.TicketConversor;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.filters.TicketFilterParamsDTO;
 import com.corusoft.ticketmanager.tickets.entities.*;
 import com.corusoft.ticketmanager.tickets.repositories.*;
 import com.corusoft.ticketmanager.tickets.services.TicketService;
@@ -125,12 +126,12 @@ public class TicketControllerTest {
         Category validCategory = testUtils.registerValidCategory();
         CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(validUser, validCategory);
 
-        GenericValueDTO<Float> params = new GenericValueDTO<>(90F);
+        GenericValueDTO<Float> paramsDTO = new GenericValueDTO<>(90F);
 
 
         // Ejecutar funcionalidades
         String endpoint = API_ENDPOINT + "/categories/" + validCategory.getId().toString();
-        String encodedBodyContent = this.jsonMapper.writeValueAsString(params);
+        String encodedBodyContent = this.jsonMapper.writeValueAsString(paramsDTO);
         ResultActions actions = mockMvc.perform(
                 put(endpoint)
                         // Valores anotados como @RequestAttribute
@@ -195,11 +196,11 @@ public class TicketControllerTest {
         CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(author, validCategory);
         ParsedTicketData parsedTicketData = testUtils.registerParsedTicketData();
 
-        CreateTicketParamsDTO params = testUtils.generateCreateTicketParamsDTO(author, customizedCategory, parsedTicketData);
+        CreateTicketParamsDTO paramsDTO = testUtils.generateCreateTicketParamsDTO(author, customizedCategory, parsedTicketData);
 
         // Ejecutar funcionalidades
         String endpoint = API_ENDPOINT + "/";
-        String encodedBodyContent = this.jsonMapper.writeValueAsString(params);
+        String encodedBodyContent = this.jsonMapper.writeValueAsString(paramsDTO);
         ResultActions actions = mockMvc.perform(
                 post(endpoint)
                         // Valores anotados como @RequestAttribute
@@ -233,11 +234,11 @@ public class TicketControllerTest {
         Ticket ticket = testUtils.registerTicket(customizedCategory, author, parsedTicketData);
         AuthenticatedUserDTO authorAuthDTO = testUtils.generateAuthenticatedUser(author);
         JwtData authorJwtData = jwtGenerator.extractInfoFromToken(authorAuthDTO.getServiceToken());
-        ShareTicketParamsDTO params = new ShareTicketParamsDTO(author.getId(), receiver.getId());
+        ShareTicketParamsDTO paramsDTO = new ShareTicketParamsDTO(author.getId(), receiver.getId());
 
         // Ejecutar funcionalidades
         String endpoint = API_ENDPOINT + "/share/" + ticket.getId().toString();
-        String encodedBodyContent = this.jsonMapper.writeValueAsString(params);
+        String encodedBodyContent = this.jsonMapper.writeValueAsString(paramsDTO);
         ResultActions actions = mockMvc.perform(
                 post(endpoint)
                         // Valores anotados como @RequestAttribute
@@ -309,6 +310,41 @@ public class TicketControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
         );
         String encodedResponseBodyContent = this.jsonMapper.writeValueAsString(TicketConversor.toTicketDTO(ticket));
+
+        // Comprobar resultados
+        actions
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(encodedResponseBodyContent));
+    }
+
+    @Test
+    void whenfilterUserTicketsByCriteria_thenTicketDTOList() throws Exception {
+        // Crear datos de prueba
+        User author = testUtils.generateValidUser();
+        AuthenticatedUserDTO authorAuthDTO = testUtils.generateAuthenticatedUser(author);
+        JwtData authorJwtData = jwtGenerator.extractInfoFromToken(authorAuthDTO.getServiceToken());
+        Category validCategory = testUtils.registerValidCategory();
+        CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(author, validCategory);
+        ParsedTicketData parsedTicketData = testUtils.registerParsedTicketData();
+        Ticket ticket = testUtils.registerTicket(customizedCategory, author, parsedTicketData);
+
+        // Ejecutar funcionalidades
+        String endpoint = API_ENDPOINT + "/" + author.getId();
+        TicketFilterParamsDTO paramsDTO = testUtils.generateSuccessfulTicketFilterParamsDTOFromTicket(ticket);
+        String encodedBodyContent = this.jsonMapper.writeValueAsString(paramsDTO);
+        ResultActions actions = mockMvc.perform(
+                put(endpoint)
+                        // Valores anotados como @RequestAttribute
+                        .requestAttr(USER_ID_ATTRIBUTE_NAME, authorJwtData.getUserID())
+                        .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, authorJwtData.toString())
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + authorAuthDTO.getServiceToken())
+                        .header(HttpHeaders.ACCEPT_LANGUAGE, locale.getLanguage())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(encodedBodyContent)
+        );
+        List<Ticket> expectedResponse = ticketService.filterUserTicketsByCriteria(author.getId(), paramsDTO);
+        String encodedResponseBodyContent = this.jsonMapper.writeValueAsString(TicketConversor.toTicketDTOList(expectedResponse));
 
         // Comprobar resultados
         actions

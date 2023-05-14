@@ -1,6 +1,6 @@
 package com.corusoft.ticketmanager.tickets.controllers.dtos.filters;
 
-import jakarta.validation.constraints.PastOrPresent;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmisionDateCriteriaDTO {
-    @PastOrPresent
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
     private LocalDateTime initialDate;
 
-    @PastOrPresent
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
     private LocalDateTime finalDate;
 }

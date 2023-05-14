@@ -5,6 +5,8 @@ import lombok.*;
 @Builder
 @Getter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class TicketFilterParamsDTO {
     private StoreCriteriaDTO storeCriteria;
 

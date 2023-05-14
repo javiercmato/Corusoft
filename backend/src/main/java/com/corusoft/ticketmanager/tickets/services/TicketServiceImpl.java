@@ -239,7 +239,12 @@ public class TicketServiceImpl implements TicketService {
 
         // Filtrar los tickets según los criterios recibidos
         TicketFilter ticketFilter = TicketFilter.builder().buildFromDTO(params);
-        List<Ticket> filteredTickets = ticketFilter.filter(userTickets);
+        List<Ticket> filteredTickets;
+        if (!ticketFilter.hasAnyCriteria()) {
+            filteredTickets = userTickets;
+        } else {
+            filteredTickets = ticketFilter.filter(userTickets);
+        }
 
         return filteredTickets;
     }

@@ -1,10 +1,14 @@
 package com.corusoft.ticketmanager.tickets.controllers.dtos.filters;
 
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class StoreCriteriaDTO {
     private String store;
+
+    public StoreCriteriaDTO(String store) {
+        this.store = store.strip();
+    }
 }

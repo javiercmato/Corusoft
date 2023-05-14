@@ -56,4 +56,5 @@ project:
     signKey: mySecretSignKeyThatNobodyShouldKnow
     expirationMinutes: 1440       # Minutos en 24 horas
   mindee:
-    apiKey: 02a3e46ce01be47679cd3cb0b0bd9780
+    #apiKey: 02a3e46ce01be47679cd3cb0b0bd9780
+    apiKey: ffb240b99ebe3e3af5bdc243e93c2bfa

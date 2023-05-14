@@ -1,6 +1,7 @@
 package com.corusoft.ticketmanager;
 
 import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateTicketParamsDTO;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.filters.*;
 import com.corusoft.ticketmanager.tickets.entities.*;
 import com.corusoft.ticketmanager.tickets.repositories.*;
 import com.corusoft.ticketmanager.tickets.services.TicketService;
@@ -32,8 +33,10 @@ public class TestUtils {
     public final String DEFAULT_NICKNAME = "Foo";
     public final String DEFAULT_PASSWORD = "Bar";
     public final String DEFAULT_CATEGORY_NAME = "Category";
-    public final Float DEFAULT_CATEGORY_MAX_WASTE_LIMIT = 100f;
+    public final Float DEFAULT_CATEGORY_MAX_WASTE_LIMIT = 100F;
     public final Float DEFAULT_TICKET_AMMOUNT = 1.00F;
+    public final Float DEFAULT_TICKET_AMMOUNT_FILTER_DEVIATION = 0.05F;
+    public final Long DEFAULT_TICKET_EMISIONDATE_FILTER_DEVIATION = 1L;
     public final String TESTS_ASSETS_PATH = "src/test/resources/assets/";
     public final String DEFAULT_TEST_TICKET_NAME = "ticket-test.jpeg";
     public final String DEFAULT_TEST_TICKET_BASE64_NAME = "ticket-test-base64string.txt";
@@ -270,8 +273,8 @@ public class TestUtils {
                 .build();
 
         return parsedTicketDataRepo.save(parsedTicketData);
-
     }
+
 
     /** Genera un DTO para crear un nuevo ticket */
     public CreateTicketParamsDTO generateCreateTicketParamsDTO(User author, CustomizedCategory customCategory, ParsedTicketData data) {
@@ -305,6 +308,50 @@ public class TestUtils {
                 .totalAmount(ticket.getAmount())
                 .name(ticket.getName())
                 .build();
+    }
+
+
+
+    /**
+     * Recibe un ticket y crea un {@link TicketFilterParamsDTO} capaz de encontrar ese ticket.
+     * @param ticket Ticket a encontrar
+     * @return Ticket encontrado
+     */
+    public TicketFilterParamsDTO generateSuccessfulTicketFilterParamsDTOFromTicket(Ticket ticket) {
+        return generateSuccessfulTicketFilterParamsDTOFromTicket(ticket, true, true, true);
+    }
+
+    /**
+     * Recibe un ticket y crea un {@link TicketFilterParamsDTO} capaz de encontrar ese ticket.
+     * @param ticket Ticket a encontrar
+     * @param doFilterByAmount Añadir filtrado por cantidad
+     * @param doFilterByEmisionDate Añadir filtrado por cantidad
+     * @param doFilterByStore Añadir filtrado por tienda
+     * @return Ticket encontrado
+     */
+    public TicketFilterParamsDTO generateSuccessfulTicketFilterParamsDTOFromTicket(
+            Ticket ticket, boolean doFilterByAmount, boolean doFilterByEmisionDate, boolean doFilterByStore) {
+        TicketFilterParamsDTO.TicketFilterParamsDTOBuilder ticketBuilder =  TicketFilterParamsDTO.builder();
+            if (doFilterByAmount) {
+                Float amount = ticket.getAmount();
+                // Cantidad del ticket +- 5%
+                ticketBuilder.amountCriteria(new AmountCriteriaDTO(
+                        amount * (1 - DEFAULT_TICKET_AMMOUNT_FILTER_DEVIATION),
+                        amount * (1 + DEFAULT_TICKET_AMMOUNT_FILTER_DEVIATION)
+                ));
+            }
+            if (doFilterByEmisionDate) {
+                // Fecha de emisión del ticket +- 1 día
+                ticketBuilder.emisionDateCriteria(new EmisionDateCriteriaDTO(
+                        ticket.getEmittedAt().minusDays(DEFAULT_TICKET_EMISIONDATE_FILTER_DEVIATION),
+                        ticket.getEmittedAt().plusDays(DEFAULT_TICKET_EMISIONDATE_FILTER_DEVIATION)
+                ));
+            }
+            if (doFilterByStore) {
+                ticketBuilder.storeCriteria(new StoreCriteriaDTO(ticket.getStore()));
+            }
+
+            return ticketBuilder.build();
     }
 
 }
