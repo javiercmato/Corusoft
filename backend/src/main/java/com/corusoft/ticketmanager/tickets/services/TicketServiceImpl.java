@@ -207,4 +207,23 @@ public class TicketServiceImpl implements TicketService {
 
         ticketRepo.delete(ticket);
     }
+
+    @Override
+    public Ticket getTicketDetails(Long userID, Long ticketID) throws EntityNotFoundException, TicketNotInPropertyException {
+        // Comprobar si existe el usuario y el ticket
+        User currentUser = userUtils.fetchUserByID(userID);
+        Ticket ticket = ticketUtils.fetchTicketById(ticketID);
+
+        // Solo el dueño del ticket o los usuarios con los que se ha compartido pueden ver el ticket
+        boolean isOwner = userUtils.doUsersMatch(userID, ticket.getCreator().getId());
+        boolean isTicketSharedWithCurrentUser = ticket.isSharedWithUser(currentUser);
+
+        boolean isAuthorized = isOwner || isTicketSharedWithCurrentUser;
+        if (!isAuthorized) {
+            throw new TicketNotInPropertyException();
+        }
+
+        // Recuperar ticket y devolverlo
+        return ticketUtils.fetchTicketById(ticketID);
+    }
 }

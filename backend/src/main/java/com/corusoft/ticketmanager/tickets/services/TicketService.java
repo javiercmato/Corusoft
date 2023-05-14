@@ -26,4 +26,6 @@ public interface TicketService {
             PermissionException;
 
     void deleteTicket(Long userID, Long ticketID) throws EntityNotFoundException, TicketNotInPropertyException;
+
+    Ticket getTicketDetails(Long userID, Long ticketID) throws EntityNotFoundException, TicketNotInPropertyException;
 }

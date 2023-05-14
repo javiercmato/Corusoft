@@ -66,7 +66,7 @@ public class Ticket {
 
     /**
      * Añadir un usuario a la lista de usuarios compartidos.
-     * @param user
+     * @param user Usuario con el que compartir el ticket
      */
     @Transient
     public void shareWithUser(User user) {
@@ -77,6 +77,19 @@ public class Ticket {
         this.receivers.add(user);
         user.getSharedTickets().add(this);
         //user.shareTicket(this);
+    }
+
+    /**
+     * Comprueba si el ticket ha sido compartido con el usuario recibido
+     * @param user Usuario a comprobar
+     * @return <c>true</c> si el ticket ha sido compartido con el usuario
+     */
+    @Transient
+    public boolean isSharedWithUser(User user) {
+        if (this.receivers == null)
+            return false;
+
+        return this.receivers.contains(user);
     }
 
 }

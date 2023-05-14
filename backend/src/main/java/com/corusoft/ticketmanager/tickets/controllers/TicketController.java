@@ -78,6 +78,7 @@ public class TicketController {
     @GetMapping(path = "/categories",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public List<Category> getAllCategories() {
         return ticketService.getAllCategories();
     }
@@ -118,6 +119,8 @@ public class TicketController {
     @GetMapping(path = "/categories/{userID}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
     public List<CustomizedCategoryDTO> getCustomizedCategoriesByUser(@RequestAttribute("userID") Long userID,
                                                                      @PathVariable("userID") Long pathUserID)
             throws PermissionException, EntityNotFoundException {
@@ -202,6 +205,17 @@ public class TicketController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping(path = "/{ticketID}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.OK)
+    public TicketDTO getTicketDetails(@RequestAttribute("userID") Long userID,
+                                      @PathVariable("ticketID") Long ticketID) throws TicketNotInPropertyException, EntityNotFoundException {
+        // Llamada al servicio
+        Ticket ticket = ticketService.getTicketDetails(userID, ticketID);
+
+        return TicketConversor.toTicketDTO(ticket);
+    }
 
     /* ******************** FUNCIONES AUXILIARES ******************** */
 
