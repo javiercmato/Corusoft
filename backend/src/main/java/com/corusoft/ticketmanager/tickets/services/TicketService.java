@@ -30,5 +30,6 @@ public interface TicketService {
 
     Ticket getTicketDetails(Long userID, Long ticketID) throws EntityNotFoundException, TicketNotInPropertyException;
 
+    List<Ticket> getSharedTickets(Long userId) throws EntityNotFoundException;
     List<Ticket> filterUserTicketsByCriteria(Long userID, TicketFilterParamsDTO params) throws EntityNotFoundException;
 }

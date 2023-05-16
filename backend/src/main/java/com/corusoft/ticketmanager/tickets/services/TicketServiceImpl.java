@@ -8,6 +8,7 @@ import com.corusoft.ticketmanager.tickets.repositories.*;
 import com.corusoft.ticketmanager.tickets.services.filters.TicketFilter;
 import com.corusoft.ticketmanager.tickets.services.utils.TicketUtils;
 import com.corusoft.ticketmanager.users.entities.User;
+import com.corusoft.ticketmanager.users.repositories.UserRepository;
 import com.corusoft.ticketmanager.users.services.utils.UserUtils;
 import com.mindee.DocumentToParse;
 import com.mindee.MindeeClient;
@@ -38,6 +39,8 @@ public class TicketServiceImpl implements TicketService {
     private ParsedTicketDataRepository parsedTicketDataRepo;
     @Autowired
     private TicketRepository ticketRepo;
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private UserUtils userUtils;
     @Autowired
@@ -230,8 +233,17 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    public List<Ticket> getSharedTickets(Long userId) throws EntityNotFoundException {
+
+        User user = userUtils.fetchUserByID(userId);
+        List<Ticket> tickets = userRepository.getSharedTickets(user.getId());
+
+        return tickets;
+    }
+
+    @Override
     public List<Ticket> filterUserTicketsByCriteria(Long userID, TicketFilterParamsDTO params) throws EntityNotFoundException {
-        // Comprobar si existe el usuari
+        // Comprobar si existe el usuario
         User user = userUtils.fetchUserByID(userID);
 
         // Recuperar todos los tickets del usuario

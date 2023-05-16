@@ -238,6 +238,19 @@ public class TicketController {
         return TicketConversor.toTicketDTOList(tickets);
     }
 
+    @GetMapping(path = "/sharedTickets",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<TicketDTO> getSharedTickets(@RequestAttribute("userID") Long userID)
+            throws EntityNotFoundException {
+
+        List<Ticket> tickets = ticketService.getSharedTickets(userID);
+
+        return TicketConversor.toTicketDTOList(tickets);
+    }
     /* ******************** FUNCIONES AUXILIARES ******************** */
 
 

@@ -26,8 +26,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import static com.corusoft.ticketmanager.common.security.JwtFilter.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -344,6 +346,46 @@ public class TicketControllerTest {
                         .content(encodedBodyContent)
         );
         List<Ticket> expectedResponse = ticketService.filterUserTicketsByCriteria(author.getId(), paramsDTO);
+        String encodedResponseBodyContent = this.jsonMapper.writeValueAsString(TicketConversor.toTicketDTOList(expectedResponse));
+
+        // Comprobar resultados
+        actions
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(encodedResponseBodyContent));
+    }
+    @Test
+    void getSharedTickets() throws Exception {
+        // Crear datos de prueba
+        User author = testUtils.generateValidUser("author");
+        userRepository.save(author);
+        User receiver = testUtils.generateValidUser("receiver");
+        Category validCategory = testUtils.registerValidCategory();
+        CustomizedCategory customizedCategory = testUtils.registerCustomizedCategory(author, validCategory);
+        ParsedTicketData parsedTicketData = testUtils.registerParsedTicketData();
+        Ticket ticket = testUtils.registerTicket(customizedCategory, author, parsedTicketData);
+        Set<Ticket> ticketSet = new HashSet<>();
+        ticketSet.add(ticket);
+
+        receiver.setTickets(ticketSet);
+        userRepository.save(receiver);
+
+        AuthenticatedUserDTO receiverAuthDTO = testUtils.generateAuthenticatedUser(receiver);
+        JwtData receiverJwtData = jwtGenerator.extractInfoFromToken(receiverAuthDTO.getServiceToken());
+
+        String endpoint = API_ENDPOINT + "/sharedTickets";
+
+        ResultActions actions = mockMvc.perform(
+                get(endpoint)
+                        // Valores anotados como @RequestAttribute
+                        .requestAttr(USER_ID_ATTRIBUTE_NAME, receiverJwtData.getUserID())
+                        .requestAttr(SERVICE_TOKEN_ATTRIBUTE_NAME, receiverJwtData.toString())
+                        .header(HttpHeaders.AUTHORIZATION, AUTH_TOKEN_PREFIX + receiverAuthDTO.getServiceToken())
+                        .header(HttpHeaders.ACCEPT_LANGUAGE, locale.getLanguage())
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        List<Ticket> expectedResponse = userRepository.getSharedTickets(receiver.getId());
         String encodedResponseBodyContent = this.jsonMapper.writeValueAsString(TicketConversor.toTicketDTOList(expectedResponse));
 
         // Comprobar resultados
