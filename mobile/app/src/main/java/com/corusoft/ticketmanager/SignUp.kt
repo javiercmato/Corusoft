@@ -12,7 +12,7 @@ import com.corusoft.ticketmanager.backend.BackendAPI
 import com.corusoft.ticketmanager.backend.dtos.users.RegisterUserParamsDTO
 import com.corusoft.ticketmanager.backend.dtos.users.UserDTO
 import com.corusoft.ticketmanager.backend.exceptions.BackendConnectionException
-import com.corusoft.ticketmanager.backend.exceptions.GlobalErrorException
+import com.corusoft.ticketmanager.backend.exceptions.BackendErrorException
 import kotlinx.coroutines.launch
 
 class SignUp : AppCompatActivity() {
@@ -44,11 +44,11 @@ class SignUp : AppCompatActivity() {
 
                 val intent = Intent(this@SignUp, Landing::class.java)
                 startActivity(intent)
-            } catch (ex: GlobalErrorException) {
+            } catch (ex: BackendErrorException) {
                 Toast.makeText(
                     applicationContext,
-                    ex.message,
-                    Toast.LENGTH_SHORT
+                    ex.getDetails(),
+                    Toast.LENGTH_LONG
                 ).show()
             } catch (ex: BackendConnectionException) {
                 Log.d("SignUp", ex.message.toString())

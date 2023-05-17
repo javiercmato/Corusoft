@@ -14,14 +14,21 @@ object TokenManager {
     }
 
 
-    fun saveToken(jwt: String?) {
-        println("Storing JWT: $jwt")
+    fun saveToken(jwt: String) {
+        println("Storing $JWT_KEY")
         sharedPreferences.edit()
             .putString(JWT_KEY, jwt)
             .apply()
     }
 
+    fun removeToken(key: String? = JWT_KEY) {
+        println("Removing $key")
+        sharedPreferences.edit()
+            .remove(key)
+            .apply()
+    }
+
     fun getToken(): String? {
-        return sharedPreferences.getString(JWT_KEY, null);
+        return sharedPreferences.getString(JWT_KEY, null)
     }
 }

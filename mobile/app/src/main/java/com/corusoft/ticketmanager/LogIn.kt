@@ -13,7 +13,7 @@ import com.corusoft.ticketmanager.backend.BackendAPI
 import com.corusoft.ticketmanager.backend.dtos.users.LoginParamsDTO
 import com.corusoft.ticketmanager.backend.dtos.users.UserDTO
 import com.corusoft.ticketmanager.backend.exceptions.BackendConnectionException
-import com.corusoft.ticketmanager.backend.exceptions.GlobalErrorException
+import com.corusoft.ticketmanager.backend.exceptions.BackendErrorException
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -122,7 +122,6 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
         lifecycleScope.launch {
             try {
                 response = backend.login(params)
-                println("Login.kt ha recibido " + response.toString())
                 Toast.makeText(
                     applicationContext,
                     "Usuario ${response?.nickname} logeado",
@@ -130,10 +129,10 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
                 ).show()
                 val intent = Intent(this@LogIn, Landing::class.java)
                 startActivity(intent)
-            } catch (ex: GlobalErrorException) {
+            } catch (ex: BackendErrorException) {
                 Toast.makeText(
                     applicationContext,
-                    ex.message,
+                    ex.getDetails(),
                     Toast.LENGTH_SHORT
                 ).show()
             } catch (ex: BackendConnectionException) {
