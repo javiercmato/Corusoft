@@ -122,26 +122,18 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
         lifecycleScope.launch {
             try {
                 response = backend.login(params)
-                Toast.makeText(
-                    applicationContext,
-                    "Usuario ${response?.nickname} logeado",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(applicationContext, "Usuario ${response?.nickname} logeado", Toast.LENGTH_SHORT)
+                    .show()
+
                 val intent = Intent(this@LogIn, Landing::class.java)
                 startActivity(intent)
             } catch (ex: BackendErrorException) {
-                Toast.makeText(
-                    applicationContext,
-                    ex.getDetails(),
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(applicationContext, ex.getDetails(), Toast.LENGTH_SHORT)
+                    .show()
             } catch (ex: BackendConnectionException) {
                 System.err.println(ex.message)
-                Toast.makeText(
-                    applicationContext,
-                    ex.message,
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(applicationContext, ex.message, Toast.LENGTH_SHORT)
+                    .show()
             }
 
         }

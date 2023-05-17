@@ -13,7 +13,7 @@ object TokenInterceptor : Interceptor {
 
         val authorizationRequestedEndpoints = arrayOf("/login", "/register")
         val shouldAddToken = authorizationRequestedEndpoints.none {
-                endpoint -> requestURL.contains(endpoint)
+                endpoint -> requestURL == endpoint
         }
         if (shouldAddToken) {
             // Obtener el token
@@ -31,6 +31,6 @@ object TokenInterceptor : Interceptor {
                 .build()
         }
 
-        return chain.proceed(request);
+        return chain.proceed(request)
     }
 }

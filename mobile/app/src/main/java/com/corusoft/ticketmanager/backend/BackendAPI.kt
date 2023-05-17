@@ -2,21 +2,10 @@ package com.corusoft.ticketmanager.backend
 
 import com.corusoft.ticketmanager.backend.dtos.common.ErrorsDTO
 import com.corusoft.ticketmanager.backend.dtos.common.GenericValueDTO
-import com.corusoft.ticketmanager.backend.dtos.tickets.CategoryDTO
-import com.corusoft.ticketmanager.backend.dtos.tickets.CreateCustomizedCategoryParamsDTO
-import com.corusoft.ticketmanager.backend.dtos.tickets.CreateTicketParamsDTO
-import com.corusoft.ticketmanager.backend.dtos.tickets.CustomizedCategoryDTO
-import com.corusoft.ticketmanager.backend.dtos.tickets.ParsedTicketDTO
-import com.corusoft.ticketmanager.backend.dtos.tickets.ShareTicketParamsDTO
-import com.corusoft.ticketmanager.backend.dtos.tickets.TicketDTO
-import com.corusoft.ticketmanager.backend.dtos.users.AuthenticatedUserDTO
-import com.corusoft.ticketmanager.backend.dtos.users.LoginParamsDTO
-import com.corusoft.ticketmanager.backend.dtos.users.RegisterUserParamsDTO
-import com.corusoft.ticketmanager.backend.dtos.users.SubscriptionDTO
-import com.corusoft.ticketmanager.backend.dtos.users.UserDTO
-import com.corusoft.ticketmanager.backend.exceptions.BackendConnectionException
-import com.corusoft.ticketmanager.backend.exceptions.BackendErrorException
-import com.corusoft.ticketmanager.backend.exceptions.GlobalErrorException
+import com.corusoft.ticketmanager.backend.dtos.tickets.*
+import com.corusoft.ticketmanager.backend.dtos.tickets.filters.TicketFilterParamsDTO
+import com.corusoft.ticketmanager.backend.dtos.users.*
+import com.corusoft.ticketmanager.backend.exceptions.*
 import com.corusoft.ticketmanager.backend.security.TokenInterceptor
 import com.corusoft.ticketmanager.backend.security.TokenManager
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -27,6 +16,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.IOException
+import java.time.YearMonth
 import java.util.concurrent.atomic.AtomicReference
 
 class BackendAPI {
@@ -338,29 +328,173 @@ class BackendAPI {
 
     // TODO: ACABAR DE IMPLEMENTAR LAS LLAMADAS A LOS ENDPOINTS DE AQUÍ ABAJO
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun deleteTicket(): Unit {}
+    suspend fun deleteTicket(ticketID: Long): Unit {
+        val service = getInstance()
+        val response : Response<Unit>
+
+        try {
+            response = service.deleteTicket(ticketID)
+        } catch (ex: IOException) {
+            throw BackendConnectionException()
+        }
+
+        handleError(response)
+    }
 
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getTicketDetails(): Unit {}
+    suspend fun getTicketDetails(ticketID: Long): TicketDTO {
+        val service = getInstance()
+        val response : Response<TicketDTO>
+        val result = AtomicReference<TicketDTO>()
+
+        try {
+            response = service.getTicketDetails(ticketID)
+        } catch (ex: IOException) {
+            throw BackendConnectionException()
+        }
+
+        if (response.isSuccessful) {
+            val body = response.body()!!
+            result.set(body)
+        } else {
+            handleError(response)
+        }
+
+        return result.get()
+    }
 
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun filterUserTicketsByCriteria(): Unit {}
+    suspend fun filterUserTicketsByCriteria(userID: Long, params: TicketFilterParamsDTO): List<TicketDTO> {
+        val service = getInstance()
+        val response : Response<List<TicketDTO>>
+        val result = AtomicReference<List<TicketDTO>>()
+
+        try {
+            response = service.filterUserTicketsByCriteria(userID, params)
+        } catch (ex: IOException) {
+            throw BackendConnectionException()
+        }
+
+        if (response.isSuccessful) {
+            val body = response.body()!!
+            result.set(body)
+        } else {
+            handleError(response)
+        }
+
+        return result.get()
+    }
 
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getSharedTickets(): Unit {}
+    suspend fun getSharedTickets(): List<TicketDTO> {
+        val service = getInstance()
+        val response : Response<List<TicketDTO>>
+        val result = AtomicReference<List<TicketDTO>>()
+
+        try {
+            response = service.getSharedTickets()
+        } catch (ex: IOException) {
+            throw BackendConnectionException()
+        }
+
+        if (response.isSuccessful) {
+            val body = response.body()!!
+            result.set(body)
+        } else {
+            handleError(response)
+        }
+
+        return result.get()
+    }
 
 
     /* ---------- STATS ---------- */
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getSpendingsPerMonth(): Unit {}
+    suspend fun getSpendingsPerMonth(): Map<YearMonth, Double> {
+        val service = getInstance()
+        val response : Response<Map<YearMonth, Double>>
+        val result = AtomicReference<Map<YearMonth, Double>>()
+
+        try {
+            response = service.getSpendingsPerMonth()
+        } catch (ex: IOException) {
+            throw BackendConnectionException()
+        }
+
+        if (response.isSuccessful) {
+            val body = response.body()!!
+            result.set(body)
+        } else {
+            handleError(response)
+        }
+
+        return result.get()
+    }
 
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getWastesPerCategory(): Unit {}
+    suspend fun getWastesPerCategory(): Map<Long, Double> {
+        val service = getInstance()
+        val response : Response<Map<Long, Double>>
+        val result = AtomicReference<Map<Long, Double>>()
+
+        try {
+            response = service.getWastesPerCategory()
+        } catch (ex: IOException) {
+            throw BackendConnectionException()
+        }
+
+        if (response.isSuccessful) {
+            val body = response.body()!!
+            result.set(body)
+        } else {
+            handleError(response)
+        }
+
+        return result.get()
+    }
 
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getSpendingsThisMonth(): Unit {}
+    suspend fun getSpendingsThisMonth(): Map<Long, Double> {
+        val service = getInstance()
+        val response : Response<Map<Long, Double>>
+        val result = AtomicReference<Map<Long, Double>>()
+
+        try {
+            response = service.getSpendingsThisMonth()
+        } catch (ex: IOException) {
+            throw BackendConnectionException()
+        }
+
+        if (response.isSuccessful) {
+            val body = response.body()!!
+            result.set(body)
+        } else {
+            handleError(response)
+        }
+
+        return result.get()
+    }
 
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getPercentagePerCategoryThisMonth(): Unit {}
+    suspend fun getPercentagePerCategoryThisMonth(): Map<Long, Double> {
+        val service = getInstance()
+        val response : Response<Map<Long, Double>>
+        val result = AtomicReference<Map<Long, Double>>()
+
+        try {
+            response = service.getPercentagePerCategoryThisMonth()
+        } catch (ex: IOException) {
+            throw BackendConnectionException()
+        }
+
+        if (response.isSuccessful) {
+            val body = response.body()!!
+            result.set(body)
+        } else {
+            handleError(response)
+        }
+
+        return result.get()
+    }
 
 }
