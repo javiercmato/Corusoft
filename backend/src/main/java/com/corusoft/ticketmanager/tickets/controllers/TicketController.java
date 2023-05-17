@@ -6,6 +6,7 @@ import com.corusoft.ticketmanager.common.exceptions.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.CategoryConversor;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.conversors.TicketConversor;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.filters.CategoryDto;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.filters.TicketFilterParamsDTO;
 import com.corusoft.ticketmanager.tickets.entities.*;
 import com.corusoft.ticketmanager.tickets.services.TicketService;
@@ -80,8 +81,8 @@ public class TicketController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
-    public List<Category> getAllCategories() {
-        return ticketService.getAllCategories();
+    public List<CategoryDto> getAllCategories() {
+        return CategoryConversor.toCategoryDTOList(ticketService.getAllCategories());
     }
 
     @PostMapping(path = "/categories",

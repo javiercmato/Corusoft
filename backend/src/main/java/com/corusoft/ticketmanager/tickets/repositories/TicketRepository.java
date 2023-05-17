@@ -9,6 +9,7 @@ import org.springframework.data.repository.ListPagingAndSortingRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public interface TicketRepository extends ListCrudRepository<Ticket, Long>,
         ListPagingAndSortingRepository<Ticket, Long>,
@@ -23,6 +24,8 @@ public interface TicketRepository extends ListCrudRepository<Ticket, Long>,
             " t.registeredAt > ?2 ")
     List<Ticket> getTicketsthisMonth(User user, LocalDateTime thisMonth);
 
+    @Query("SELECT t from Ticket t WHERE t.creator.id = ?1 group by t.customizedCategory.category")
+    Set<Ticket> getTicketsByUserId(Long userId);
     List<Ticket> findDistinctByCreatorOrderByEmittedAtDesc(User creator);
 
 }

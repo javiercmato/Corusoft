@@ -3,6 +3,7 @@ package com.corusoft.ticketmanager.stats.controllers;
 import com.corusoft.ticketmanager.common.exceptions.EntityNotFoundException;
 import com.corusoft.ticketmanager.stats.services.StatsService;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.WastesPerCategoryParams;
+import com.corusoft.ticketmanager.tickets.controllers.dtos.filters.CategoryDto;
 import com.corusoft.ticketmanager.tickets.entities.Category;
 import com.corusoft.ticketmanager.tickets.services.TicketService;
 import com.corusoft.ticketmanager.users.services.utils.UserUtils;
@@ -66,7 +67,7 @@ public class StatsController {
 
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Map<Category, Double> getSpendingsThisMonth(@RequestAttribute("userID") Long userID)
+    public Map<CategoryDto, Double> getSpendingsThisMonth(@RequestAttribute("userID") Long userID)
             throws EntityNotFoundException {
 
         return statsService.getSpendingsThisMonth(userID);
@@ -77,7 +78,7 @@ public class StatsController {
     )
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Map<Category, Double> getPercentagePerCategoryThisMonth(@RequestAttribute("userID") Long userID)
+    public Map<CategoryDto, Double> getPercentagePerCategoryThisMonth(@RequestAttribute("userID") Long userID)
             throws EntityNotFoundException {
 
         return statsService.getPercentagePerCategoryThisMonth(userID);
