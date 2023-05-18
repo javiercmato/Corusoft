@@ -44,6 +44,8 @@
             android:name=".UserProfile" />
         <activity
             android:name=".Landing" />
+        <activity
+            android:name=".CameraActivity" />
     </application>
 
 </manifest>
