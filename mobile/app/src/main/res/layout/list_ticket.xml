@@ -52,6 +52,13 @@
                 android:padding="16dp"
                 />
 
+            <ImageView
+                android:id="@+id/item_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAccessibility="no"
+                android:scaleType="centerCrop" />
+
         </RelativeLayout>
 
 
