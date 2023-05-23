@@ -6,8 +6,10 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.corusoft.ticketmanager.adapter.TicketAdapter
+import com.corusoft.ticketmanager.backend.BackendAPI
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -18,6 +20,15 @@ class UserProfile : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_profile)
         datosCorrutina()
+    }
+
+    fun onClickLogOut(view: View) {
+        val backend = BackendAPI()
+        lifecycleScope.launch {
+            backend.logout()
+            val intent = Intent(this@UserProfile, LogIn::class.java)
+            startActivity(intent)
+        }
     }
 
     fun onClickContactsListButton(view: View) {
