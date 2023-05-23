@@ -22,7 +22,10 @@ data class TicketFilterParamsDTO(
             return this
         }
 
-        fun withEmisionDateRange(initialDate: LocalDate, finalDate: LocalDate): TicketFilterParamsDTOBuilder {
+        fun withEmisionDateRange(
+            initialDate: LocalDate,
+            finalDate: LocalDate
+        ): TicketFilterParamsDTOBuilder {
             this.emisionDateCriteria = EmisionDateCriteriaFilterParamsDTO(initialDate, finalDate)
             return this
         }
@@ -37,4 +40,3 @@ data class TicketFilterParamsDTO(
         }
     }
 }
-

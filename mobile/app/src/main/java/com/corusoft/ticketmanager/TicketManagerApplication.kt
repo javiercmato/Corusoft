@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import java.time.LocalDateTime
 
-class TicketManagerApplication: Application() {
+class TicketManagerApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         TokenManager.init(this)

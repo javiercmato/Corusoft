@@ -82,6 +82,7 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
 
         if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+
             /************/
             // To check that the user information is being collected properly
             val account = task.getResult(ApiException::class.java)!!
@@ -122,7 +123,11 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
         lifecycleScope.launch {
             try {
                 response = backend.login(params)
-                Toast.makeText(applicationContext, "Usuario ${response?.nickname} logeado", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    applicationContext,
+                    "Usuario ${response?.nickname} logeado",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
 
                 val intent = Intent(this@LogIn, Landing::class.java)

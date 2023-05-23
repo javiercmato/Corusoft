@@ -59,7 +59,4 @@ class UserProfile : AppCompatActivity() {
         Toast.makeText(applicationContext, "Fetch contacts completed", Toast.LENGTH_SHORT)
             .show()
     }
-
-
-
 }

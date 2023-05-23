@@ -28,9 +28,9 @@ class BackendAPI {
 
     init {
         // Añadir interceptor para agregar token a peticiones
-         val httpClient: OkHttpClient = OkHttpClient.Builder()
-             .addInterceptor(TokenInterceptor)
-             .build()
+        val httpClient: OkHttpClient = OkHttpClient.Builder()
+            .addInterceptor(TokenInterceptor)
+            .build()
 
         val moshi = Moshi.Builder()
             .addLast(KotlinJsonAdapterFactory())
@@ -46,7 +46,8 @@ class BackendAPI {
             .build()
     }
 
-    private fun getInstance(): IBackendService = retrofitInstance.create(IBackendService::class.java)
+    private fun getInstance(): IBackendService =
+        retrofitInstance.create(IBackendService::class.java)
 
 
     /* ******************** Funciones auxiliares ******************** */
@@ -72,7 +73,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun login(params: LoginParamsDTO): UserDTO {
         val service = getInstance()
-        val response : Response<AuthenticatedUserDTO>
+        val response: Response<AuthenticatedUserDTO>
         val result = AtomicReference<UserDTO>()
 
         try {
@@ -96,7 +97,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun signUp(params: RegisterUserParamsDTO): UserDTO {
         val service = getInstance()
-        val response : Response<AuthenticatedUserDTO>
+        val response: Response<AuthenticatedUserDTO>
         val result = AtomicReference<UserDTO>()
 
         try {
@@ -119,7 +120,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun loginFromToken(): UserDTO {
         val service = getInstance()
-        val response : Response<AuthenticatedUserDTO>
+        val response: Response<AuthenticatedUserDTO>
         val result = AtomicReference<UserDTO>()
 
         try {
@@ -151,7 +152,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun subscribeToPremium(userID: Long): SubscriptionDTO {
         val service = getInstance()
-        val response : Response<SubscriptionDTO>
+        val response: Response<SubscriptionDTO>
         val result = AtomicReference<SubscriptionDTO>()
 
         try {
@@ -175,7 +176,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun getAllCategories(): List<CategoryDTO> {
         val service = getInstance()
-        val response : Response<List<CategoryDTO>>
+        val response: Response<List<CategoryDTO>>
         val result = AtomicReference<List<CategoryDTO>>()
 
         try {
@@ -197,7 +198,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun createCustomizedCategory(params: CreateCustomizedCategoryParamsDTO): CustomizedCategoryDTO {
         val service = getInstance()
-        val response : Response<CustomizedCategoryDTO>
+        val response: Response<CustomizedCategoryDTO>
         val result = AtomicReference<CustomizedCategoryDTO>()
 
         try {
@@ -217,9 +218,12 @@ class BackendAPI {
     }
 
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun updateCustomizedCategory(categoryID: Long, params: GenericValueDTO<Float>): CustomizedCategoryDTO {
+    suspend fun updateCustomizedCategory(
+        categoryID: Long,
+        params: GenericValueDTO<Float>
+    ): CustomizedCategoryDTO {
         val service = getInstance()
-        val response : Response<CustomizedCategoryDTO>
+        val response: Response<CustomizedCategoryDTO>
         val result = AtomicReference<CustomizedCategoryDTO>()
 
         try {
@@ -239,9 +243,9 @@ class BackendAPI {
     }
 
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getCustomizedCategoriesByUser(userID: Long) : List<CustomizedCategoryDTO> {
+    suspend fun getCustomizedCategoriesByUser(userID: Long): List<CustomizedCategoryDTO> {
         val service = getInstance()
-        val response : Response<List<CustomizedCategoryDTO>>
+        val response: Response<List<CustomizedCategoryDTO>>
         val result = AtomicReference<List<CustomizedCategoryDTO>>()
 
         try {
@@ -263,7 +267,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun parseTicket(params: GenericValueDTO<String>): ParsedTicketDTO {
         val service = getInstance()
-        val response : Response<ParsedTicketDTO>
+        val response: Response<ParsedTicketDTO>
         val result = AtomicReference<ParsedTicketDTO>()
 
         try {
@@ -285,7 +289,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun createTicket(params: CreateTicketParamsDTO): TicketDTO {
         val service = getInstance()
-        val response : Response<TicketDTO>
+        val response: Response<TicketDTO>
         val result = AtomicReference<TicketDTO>()
 
         try {
@@ -307,7 +311,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun shareTicket(userID: Long, params: ShareTicketParamsDTO): TicketDTO {
         val service = getInstance()
-        val response : Response<TicketDTO>
+        val response: Response<TicketDTO>
         val result = AtomicReference<TicketDTO>()
 
         try {
@@ -330,7 +334,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun deleteTicket(ticketID: Long): Unit {
         val service = getInstance()
-        val response : Response<Unit>
+        val response: Response<Unit>
 
         try {
             response = service.deleteTicket(ticketID)
@@ -344,7 +348,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun getTicketDetails(ticketID: Long): TicketDTO {
         val service = getInstance()
-        val response : Response<TicketDTO>
+        val response: Response<TicketDTO>
         val result = AtomicReference<TicketDTO>()
 
         try {
@@ -364,9 +368,12 @@ class BackendAPI {
     }
 
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun filterUserTicketsByCriteria(userID: Long, params: TicketFilterParamsDTO): List<TicketDTO> {
+    suspend fun filterUserTicketsByCriteria(
+        userID: Long,
+        params: TicketFilterParamsDTO
+    ): List<TicketDTO> {
         val service = getInstance()
-        val response : Response<List<TicketDTO>>
+        val response: Response<List<TicketDTO>>
         val result = AtomicReference<List<TicketDTO>>()
 
         try {
@@ -388,7 +395,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun getSharedTickets(): List<TicketDTO> {
         val service = getInstance()
-        val response : Response<List<TicketDTO>>
+        val response: Response<List<TicketDTO>>
         val result = AtomicReference<List<TicketDTO>>()
 
         try {
@@ -412,7 +419,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun getSpendingsPerMonth(): Map<YearMonth, Double> {
         val service = getInstance()
-        val response : Response<Map<YearMonth, Double>>
+        val response: Response<Map<YearMonth, Double>>
         val result = AtomicReference<Map<YearMonth, Double>>()
 
         try {
@@ -434,7 +441,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun getWastesPerCategory(): Map<Long, Double> {
         val service = getInstance()
-        val response : Response<Map<Long, Double>>
+        val response: Response<Map<Long, Double>>
         val result = AtomicReference<Map<Long, Double>>()
 
         try {
@@ -456,7 +463,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun getSpendingsThisMonth(): Map<Long, Double> {
         val service = getInstance()
-        val response : Response<Map<Long, Double>>
+        val response: Response<Map<Long, Double>>
         val result = AtomicReference<Map<Long, Double>>()
 
         try {
@@ -478,7 +485,7 @@ class BackendAPI {
     @Throws(BackendErrorException::class, BackendConnectionException::class)
     suspend fun getPercentagePerCategoryThisMonth(): Map<Long, Double> {
         val service = getInstance()
-        val response : Response<Map<Long, Double>>
+        val response: Response<Map<Long, Double>>
         val result = AtomicReference<Map<Long, Double>>()
 
         try {

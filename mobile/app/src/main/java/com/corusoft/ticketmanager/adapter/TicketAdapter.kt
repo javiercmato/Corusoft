@@ -11,7 +11,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.corusoft.ticketmanager.R
 import com.corusoft.ticketmanager.backend.dtos.tickets.TicketDTO
@@ -56,7 +55,7 @@ class TicketAdapter(
 
     override fun getItemCount() = dataset.size
 
-    private fun decodeBase64(base64String: String?) : Bitmap {
+    private fun decodeBase64(base64String: String?): Bitmap {
 
         // Decodifica la cadena Base64 a un array de bytes
         val decodeBytes = Base64.decode(base64String, Base64.DEFAULT)

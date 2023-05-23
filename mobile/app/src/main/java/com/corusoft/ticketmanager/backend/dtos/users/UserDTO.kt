@@ -2,7 +2,7 @@ package com.corusoft.ticketmanager.backend.dtos.users
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class UserDTO (
+data class UserDTO(
     @JsonProperty("userID")
     var userID: Long? = null,
     @JsonProperty("role")
@@ -20,4 +20,3 @@ data class UserDTO (
 ) {
     constructor() : this(null, null, null, null, null, null, null)
 }
-

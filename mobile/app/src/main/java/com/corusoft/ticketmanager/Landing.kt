@@ -11,6 +11,7 @@ import com.corusoft.ticketmanager.backend.exceptions.BackendConnectionException
 import com.corusoft.ticketmanager.backend.exceptions.BackendErrorException
 import com.db.williamchart.view.DonutChartView
 import com.db.williamchart.view.HorizontalBarChartView
+import kotlinx.coroutines.launch
 
 
 class Landing : AppCompatActivity() {

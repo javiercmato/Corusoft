@@ -12,8 +12,8 @@ object TokenInterceptor : Interceptor {
         var requestURL = request.url().toString()
 
         val authorizationRequestedEndpoints = arrayOf("/login", "/register")
-        val shouldAddToken = authorizationRequestedEndpoints.none {
-                endpoint -> requestURL == endpoint
+        val shouldAddToken = authorizationRequestedEndpoints.none { endpoint ->
+            requestURL == endpoint
         }
         if (shouldAddToken) {
             // Obtener el token
