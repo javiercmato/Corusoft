@@ -70,7 +70,7 @@ interface IBackendService {
     @PUT("tickets/{userID}")
     suspend fun filterUserTicketsByCriteria(
         @Path("userID") userID: Long,
-        params: TicketFilterParamsDTO
+        @Body params: TicketFilterParamsDTO
     ): Response<List<TicketDTO>>
 
     @GET("/tickets/sharedTickets")

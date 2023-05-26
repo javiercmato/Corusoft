@@ -2,7 +2,6 @@ package com.corusoft.ticketmanager
 
 import com.corusoft.ticketmanager.backend.dtos.tickets.CustomizedCategoryID
 import com.corusoft.ticketmanager.backend.dtos.tickets.TicketDTO
-import java.time.LocalDateTime
 
 // Delete this class when Http is implemented for Get Tickets
 class TicketDataSource {
@@ -14,8 +13,8 @@ class TicketDataSource {
         return TicketDTO(
             x.toLong(),
             x.toString(),
-            LocalDateTime.now(),
-            LocalDateTime.now(),
+            x.toString(),
+            x.toString(),
             x.toFloat(),
             x.toString(),
             image,

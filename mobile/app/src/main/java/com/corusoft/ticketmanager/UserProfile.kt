@@ -10,10 +10,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.corusoft.ticketmanager.adapter.TicketAdapter
 import com.corusoft.ticketmanager.backend.BackendAPI
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
+import com.corusoft.ticketmanager.backend.dtos.tickets.TicketDTO
+import com.corusoft.ticketmanager.backend.dtos.tickets.filters.TicketFilterParamsDTO
+import com.corusoft.ticketmanager.backend.exceptions.BackendConnectionException
+import com.corusoft.ticketmanager.backend.exceptions.BackendErrorException
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import java.util.Collections
 
 class UserProfile : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,34 +42,52 @@ class UserProfile : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun datosCorrutina() = runBlocking {
-        coroutineScope {
-            launch {
-                delay(1000L)
-                println("Solicitando listado de tickets...")
-                // Http a Backend
-                val myTickets = TicketDataSource().loadTickets()
-                Toast.makeText(applicationContext, myTickets.size.toString(), Toast.LENGTH_SHORT)
+    private fun datosCorrutina() {
+        lifecycleScope.launch {
+            println("Solicitando listado de tickets...")
+            // Http a Backend
+            val backend = BackendAPI()
+            var myTickets: List<TicketDTO> = Collections.emptyList()
+            try {
+                var filterParams: TicketFilterParamsDTO = TicketFilterParamsDTO.TicketFilterParamsDTOBuilder().build()
+                myTickets = backend.filterUserTicketsByCriteria(2, filterParams)
+            } catch (ex: BackendErrorException) {
+                Toast.makeText(applicationContext, ex.getDetails(), Toast.LENGTH_SHORT)
                     .show()
-                val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
-                recyclerView.adapter = TicketAdapter(this@UserProfile, myTickets)
-                recyclerView.setHasFixedSize(true)
+            } catch (ex: BackendConnectionException) {
+                System.err.println(ex.message)
+                Toast.makeText(applicationContext, ex.message, Toast.LENGTH_SHORT)
+                    .show()
             }
+
+
+            Toast.makeText(applicationContext, myTickets.size, Toast.LENGTH_SHORT)
+                .show()
+            val recyclerView = findViewById<RecyclerView>(R.id.recycler_view)
+            recyclerView.adapter = TicketAdapter(this@UserProfile, myTickets)
+            recyclerView.setHasFixedSize(true)
         }
         println("Listado de tickets recibidos")
     }
 
-    private fun fetchContactsCoroutine() = runBlocking {
-        coroutineScope {
-            launch {
-                delay(2000L)
-                println("Fetching contacts from backend...")
-                Toast.makeText(applicationContext, "Fetching contacts", Toast.LENGTH_SHORT)
+    private fun fetchTickets(): List<TicketDTO> {
+        // Realizar petición a backend
+        val backend = BackendAPI()
+        var response: List<TicketDTO> = Collections.emptyList()
+        lifecycleScope.launch {
+            try {
+                var filterParams: TicketFilterParamsDTO = TicketFilterParamsDTO.TicketFilterParamsDTOBuilder().build()
+                response = backend.filterUserTicketsByCriteria(2, filterParams)
+            } catch (ex: BackendErrorException) {
+                Toast.makeText(applicationContext, ex.getDetails(), Toast.LENGTH_SHORT)
+                    .show()
+            } catch (ex: BackendConnectionException) {
+                System.err.println(ex.message)
+                Toast.makeText(applicationContext, ex.message, Toast.LENGTH_SHORT)
                     .show()
             }
         }
-        println("Received contacts list fron backend")
-        Toast.makeText(applicationContext, "Fetch contacts completed", Toast.LENGTH_SHORT)
-            .show()
+
+        return response
     }
 }
