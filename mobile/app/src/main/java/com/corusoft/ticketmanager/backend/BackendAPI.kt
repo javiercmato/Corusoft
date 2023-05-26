@@ -439,13 +439,14 @@ class BackendAPI {
     }
 
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getWastesPerCategory(): Map<Long, Double> {
+    suspend fun getWastesPerCategory(): Map<YearMonth, Double> {
         val service = getInstance()
-        val response: Response<Map<Long, Double>>
-        val result = AtomicReference<Map<Long, Double>>()
+        val response: Response<Map<YearMonth, Double>>
+        val result = AtomicReference<Map<YearMonth, Double>>()
 
         try {
-            response = service.getWastesPerCategory()
+            val params = WastesPerCategoryParamsDTO(1)
+            response = service.getWastesPerCategory(params)
         } catch (ex: IOException) {
             throw BackendConnectionException()
         }
@@ -461,10 +462,10 @@ class BackendAPI {
     }
 
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getSpendingsThisMonth(): Map<Long, Double> {
+    suspend fun getSpendingsThisMonth(): Map<String, Double> {
         val service = getInstance()
-        val response: Response<Map<Long, Double>>
-        val result = AtomicReference<Map<Long, Double>>()
+        val response: Response<Map<String, Double>>
+        val result = AtomicReference<Map<String, Double>>()
 
         try {
             response = service.getSpendingsThisMonth()
@@ -483,10 +484,10 @@ class BackendAPI {
     }
 
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getPercentagePerCategoryThisMonth(): Map<Long, Double> {
+    suspend fun getPercentagePerCategoryThisMonth(): Map<String, Double> {
         val service = getInstance()
-        val response: Response<Map<Long, Double>>
-        val result = AtomicReference<Map<Long, Double>>()
+        val response: Response<Map<String, Double>>
+        val result = AtomicReference<Map<String, Double>>()
 
         try {
             response = service.getPercentagePerCategoryThisMonth()
