@@ -54,7 +54,7 @@ public class SecurityConfig {
 
                 // STATISTICS ENDPOINTS
                 .requestMatchers(HttpMethod.GET, "/api/stats/spendingsPerMonth").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/stats/wastesCategory").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/stats/wastesCategory").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/stats/spendingsThisMonth").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/stats/percentagePerCategory").permitAll()
 

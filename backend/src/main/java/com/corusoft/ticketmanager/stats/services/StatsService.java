@@ -16,9 +16,9 @@ public interface StatsService {
     /**
      * Devuelve para un usuario todos los gastos asociados a una categoría de este mes
      * **/
-    Map<CategoryDto, Double> getSpendingsThisMonth(Long userID) throws  EntityNotFoundException;
+    Map<String, Double> getSpendingsThisMonth(Long userID) throws  EntityNotFoundException;
 
-    Map<CategoryDto, Double> getPercentagePerCategoryThisMonth(Long userID) throws EntityNotFoundException;
+    Map<String, Double> getPercentagePerCategoryThisMonth(Long userID) throws EntityNotFoundException;
 
     /**
      * Devuelve el histórico de gastos por categoría concreta en diferentes meses.

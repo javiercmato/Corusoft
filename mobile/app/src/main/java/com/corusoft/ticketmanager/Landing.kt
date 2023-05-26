@@ -2,22 +2,17 @@ package com.corusoft.ticketmanager
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.corusoft.ticketmanager.backend.BackendAPI
-import com.corusoft.ticketmanager.backend.dtos.users.UserDTO
 import com.corusoft.ticketmanager.backend.exceptions.BackendConnectionException
 import com.corusoft.ticketmanager.backend.exceptions.BackendErrorException
 import com.db.williamchart.view.DonutChartView
 import com.db.williamchart.view.HorizontalBarChartView
 import kotlinx.coroutines.launch
-import com.corusoft.ticketmanager.R
-import org.w3c.dom.Text
-import java.time.YearMonth
+import java.util.concurrent.atomic.AtomicReference
 
 
 class Landing : AppCompatActivity() {
@@ -31,11 +26,16 @@ class Landing : AppCompatActivity() {
         private const val animationDuration = 1500L
     }
 
+    var currentMonthSpendingsStats: AtomicReference<Double> = AtomicReference(0.0)
+    var spendingsByCategoriesStats: AtomicReference<Map<String, Float>> = AtomicReference()
+    var categoryWastesStats: Map<String, Double>? = null
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_landing)
 
-        requestForDashboardData(findViewById(R.layout.activity_landing))
+        requestForDashboardData()
 
         val donutChartView: DonutChartView = findViewById(R.id.donutChart)
         val barChartView: HorizontalBarChartView = findViewById(R.id.barChartHorizontal)
@@ -56,28 +56,16 @@ class Landing : AppCompatActivity() {
     /**
      * Solicita al backend los datos necesarios para la pantalla de inicio del usuario
      */
-    private fun requestForDashboardData(view: View) {
+    private fun requestForDashboardData() {
         // Realizar peticiones al backend
         val backend = BackendAPI()
-        var loggedUser: UserDTO?
-        val valueSpend = view.findViewById<TextView>(R.id.week_quantity)
+
         lifecycleScope.launch {
             try {
-                loggedUser = backend.loginFromToken()
-                Toast.makeText(
-                    applicationContext,
-                    "Usuario ${loggedUser?.nickname} logeado con token",
-                    Toast.LENGTH_SHORT
-                ).show()
-                val spend = backend.getSpendingsPerMonth()
-                var stringValue: String
-                if (spend.get(YearMonth.now()) != null) {
-                    stringValue = spend.get(YearMonth.now()).toString()
-                } else {
-                    stringValue = "0"
-                }
-                valueSpend.text = stringValue
-                //val spendMoth = backend.getSpendingsThisMonth()
+                val currentMonthSpending = backend.getCurrentMonthSpendings()
+                val spendingsByCatgories = backend.getSpendingsByCategories()
+                currentMonthSpendingsStats.set(currentMonthSpending)
+                spendingsByCategoriesStats.set(spendingsByCatgories)
             } catch (ex: BackendErrorException) {
                 Toast.makeText(
                     applicationContext,
@@ -92,9 +80,12 @@ class Landing : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+
+            // Dibujar gasto del mes actual
+            val currentMonthSpendingView = findViewById<TextView>(R.id.week_quantity)
+            currentMonthSpendingView.text = "$currentMonthSpendingsStats €"
         }
 
-        println("Datos históricos recibidos")
         Toast.makeText(applicationContext, "Datos históricos recibidos", Toast.LENGTH_SHORT).show()
     }
 

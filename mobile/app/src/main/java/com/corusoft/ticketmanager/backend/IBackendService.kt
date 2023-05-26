@@ -7,7 +7,6 @@ import com.corusoft.ticketmanager.backend.dtos.tickets.CreateCustomizedCategoryP
 import com.corusoft.ticketmanager.backend.dtos.tickets.CreateTicketParamsDTO
 import com.corusoft.ticketmanager.backend.dtos.tickets.CustomizedCategoryDTO
 import com.corusoft.ticketmanager.backend.dtos.tickets.ParsedTicketDTO
-import com.corusoft.ticketmanager.backend.dtos.tickets.WastesPerCategoryParamsDTO
 import com.corusoft.ticketmanager.backend.dtos.tickets.ShareTicketParamsDTO
 import com.corusoft.ticketmanager.backend.dtos.tickets.TicketDTO
 
@@ -18,7 +17,6 @@ import com.corusoft.ticketmanager.backend.dtos.users.RegisterUserParamsDTO
 import com.corusoft.ticketmanager.backend.dtos.users.SubscriptionDTO
 import retrofit2.Response
 import retrofit2.http.*
-import java.time.YearMonth
 
 interface IBackendService {
     /* ******************** USER ENDPOINTS ******************** */
@@ -81,13 +79,13 @@ interface IBackendService {
 
     /* ******************** STATS ENDPOINTS ******************** */
     @GET("stats/spendingsPerMonth")
-    suspend fun getSpendingsPerMonth(): Response<Map<YearMonth, Double>>
+    suspend fun getCurrentMonthSpendings(): Response<Map<String, Double>>
 
-    @GET("stats/wastesCategory")
-    suspend fun getWastesPerCategory(@Body params: WastesPerCategoryParamsDTO): Response<Map<YearMonth, Double>>
+    //@POST("stats/wastesCategory")
+    //suspend fun getWastesPerCategory(@Body params: WastesPerCategoryParamsDTO): Response<Map<String, Double>>
 
     @GET("stats/spendingsThisMonth")
-    suspend fun getSpendingsThisMonth(): Response<Map<String, Double>>
+    suspend fun getSpendingsByCategories(): Response<Map<String, Float>>
 
     @GET("stats/percentagePerCategory")
     suspend fun getPercentagePerCategoryThisMonth(): Response<Map<String, Double>>

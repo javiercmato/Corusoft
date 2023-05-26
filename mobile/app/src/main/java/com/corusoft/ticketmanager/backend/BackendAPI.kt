@@ -417,58 +417,60 @@ class BackendAPI {
 
     /* ---------- STATS ---------- */
     @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getSpendingsPerMonth(): Map<YearMonth, Double> {
-        val service = getInstance()
-        val response: Response<Map<YearMonth, Double>>
-        val result = AtomicReference<Map<YearMonth, Double>>()
-
-        try {
-            response = service.getSpendingsPerMonth()
-        } catch (ex: IOException) {
-            throw BackendConnectionException()
-        }
-
-        if (response.isSuccessful) {
-            val body = response.body()!!
-            result.set(body)
-        } else {
-            handleError(response)
-        }
-
-        return result.get()
-    }
-
-    @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getWastesPerCategory(): Map<YearMonth, Double> {
-        val service = getInstance()
-        val response: Response<Map<YearMonth, Double>>
-        val result = AtomicReference<Map<YearMonth, Double>>()
-
-        try {
-            val params = WastesPerCategoryParamsDTO(1)
-            response = service.getWastesPerCategory(params)
-        } catch (ex: IOException) {
-            throw BackendConnectionException()
-        }
-
-        if (response.isSuccessful) {
-            val body = response.body()!!
-            result.set(body)
-        } else {
-            handleError(response)
-        }
-
-        return result.get()
-    }
-
-    @Throws(BackendErrorException::class, BackendConnectionException::class)
-    suspend fun getSpendingsThisMonth(): Map<String, Double> {
+    suspend fun getCurrentMonthSpendings(): Double? {
         val service = getInstance()
         val response: Response<Map<String, Double>>
-        val result = AtomicReference<Map<String, Double>>()
+        val result = AtomicReference<Double>()
 
         try {
-            response = service.getSpendingsThisMonth()
+            response = service.getCurrentMonthSpendings()
+        } catch (ex: IOException) {
+            throw BackendConnectionException()
+        }
+
+        if (response.isSuccessful) {
+            val body = response.body()!!
+            val currentMonth = YearMonth.now()
+            val value = body[currentMonth.toString()]
+            result.set(value)
+        } else {
+            handleError(response)
+        }
+
+        return result.get()
+    }
+
+    //@Throws(BackendErrorException::class, BackendConnectionException::class)
+    //suspend fun getWastesPerCategory(): Map<String, Double> {
+    //    val service = getInstance()
+    //    val response: Response<Map<String, Double>>
+    //    val result = AtomicReference<Map<String, Double>>()
+    //
+    //    try {
+    //        val params = WastesPerCategoryParamsDTO(1)
+    //        response = service.getWastesPerCategory(params)
+    //    } catch (ex: IOException) {
+    //        throw BackendConnectionException()
+    //    }
+    //
+    //    if (response.isSuccessful) {
+    //        val body = response.body()!!
+    //        result.set(body)
+    //    } else {
+    //        handleError(response)
+    //    }
+    //
+    //    return result.get()
+    //}
+
+    @Throws(BackendErrorException::class, BackendConnectionException::class)
+    suspend fun getSpendingsByCategories(): Map<String, Float> {
+        val service = getInstance()
+        val response: Response<Map<String, Float>>
+        val result = AtomicReference<Map<String, Float>>()
+
+        try {
+            response = service.getSpendingsByCategories()
         } catch (ex: IOException) {
             throw BackendConnectionException()
         }

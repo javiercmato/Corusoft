@@ -71,46 +71,42 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public Map<CategoryDto, Double> getSpendingsThisMonth(Long userID) throws EntityNotFoundException {
+    public Map<String, Double> getSpendingsThisMonth(Long userID) throws EntityNotFoundException {
 
         User user = userUtils.fetchUserByID(userID);
         LocalDateTime thisMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
         List<Ticket> tickets = ticketRepo.getTicketsthisMonth(user, thisMonth);
-        Map<CategoryDto, Double> results = new HashMap<>();
+        Map<String, Double> results = new HashMap<>();
 
         for (Ticket ticket : tickets) {
             Category category = ticket.getCustomizedCategory().getCategory();
-            CategoryDto categoryDto = new CategoryDto(category.getId(), category.getName());
-            Double amount = Double.valueOf(ticket.getAmount());
-            results.merge(categoryDto, amount, Double::sum);
+            Double amount = roundDoubleWithTwoDecimals(Double.valueOf(ticket.getAmount()));
+            results.merge(category.getName(), amount, Double::sum);
         }
 
         return results;
     }
 
     @Override
-    public Map<CategoryDto, Double> getPercentagePerCategoryThisMonth(Long userID) throws EntityNotFoundException {
-
+    public Map<String, Double> getPercentagePerCategoryThisMonth(Long userID) throws EntityNotFoundException {
         User user = userUtils.fetchUserByID(userID);
         LocalDateTime thisMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
         List<Ticket> tickets = ticketRepo.getTicketsthisMonth(user, thisMonth);
-        Map<CategoryDto, Double> results = new HashMap<>();
+        Map<String, Double> results = new HashMap<>();
         double totalAmount = 0.0;
 
         for (Ticket ticket : tickets) {
             Category category = ticket.getCustomizedCategory().getCategory();
-            double amount = Double.valueOf(ticket.getAmount());
+            double amount = roundDoubleWithTwoDecimals(Double.valueOf(ticket.getAmount()));
             totalAmount += amount;
-            results.merge(new CategoryDto(category.getId(), category.getName()), amount, Double::sum);
+            results.merge(category.getName(), amount, Double::sum);
         }
 
-        DecimalFormat decimalFormat = new DecimalFormat("#.##"); // Formato de dos decimales
-
-        for (Map.Entry<CategoryDto, Double> entry : results.entrySet()) {
+        for (Map.Entry<String, Double> entry : results.entrySet()) {
             double percentage = (entry.getValue() / totalAmount) * 100.0;
-            double roundedPercentage = Double.parseDouble(decimalFormat.format(percentage));
+            double roundedPercentage = roundDoubleWithTwoDecimals(percentage);
             entry.setValue(roundedPercentage);
         }
 
@@ -127,7 +123,6 @@ public class StatsServiceImpl implements StatsService {
         Map<YearMonth, Double> spendsPerCategoryMonth = new TreeMap<>();
 
         if (!tickets.isEmpty()) {
-
             spendsPerCategoryMonth = tickets.stream()
                     .collect(
                             Collectors.groupingBy(ticket -> YearMonth.from(ticket.getEmittedAt()),
@@ -139,6 +134,8 @@ public class StatsServiceImpl implements StatsService {
 
             // Redondear números
             spendsPerCategoryMonth.replaceAll((key, value) -> roundDoubleWithTwoDecimals(value));
+        } else {
+            spendsPerCategoryMonth = Collections.emptyMap();
         }
 
         return spendsPerCategoryMonth;

@@ -45,13 +45,13 @@ public class StatsController {
     )
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Map<YearMonth, Double> getSpendingsPerMonth(@RequestAttribute("userID") Long userID)
+    public Map<String, Double> getSpendingsPerMonth(@RequestAttribute("userID") Long userID)
             throws EntityNotFoundException {
 
-        return statsService.getSpendingsByUser(userID);
+        return convertMapKeyToString(statsService.getSpendingsByUser(userID));
     }
 
-    @GetMapping(path = "/wastesCategory",
+    @PostMapping(path = "/wastesCategory",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
@@ -72,7 +72,7 @@ public class StatsController {
     public Map<String, Double> getSpendingsThisMonth(@RequestAttribute("userID") Long userID)
             throws EntityNotFoundException {
 
-        return convertMap(statsService.getSpendingsThisMonth(userID));
+        return convertMapKeyToString(statsService.getSpendingsThisMonth(userID));
     }
 
     @GetMapping(path = "/percentagePerCategory",
@@ -83,13 +83,14 @@ public class StatsController {
     public Map<String, Double> getPercentagePerCategoryThisMonth(@RequestAttribute("userID") Long userID)
             throws EntityNotFoundException {
 
-        return convertMap(statsService.getPercentagePerCategoryThisMonth(userID));
+        return convertMapKeyToString(statsService.getPercentagePerCategoryThisMonth(userID));
     }
 
-    private static Map<String, Double> convertMap(Map<CategoryDto, Double> originalMap) {
+
+    private static Map<String, Double> convertMapKeyToString(Map<?, Double> originalMap) {
         return originalMap.entrySet().stream()
                 .collect(Collectors.toMap(
-                        entry -> entry.getKey().getName(),
+                        entry -> entry.getKey().toString(),
                         Map.Entry::getValue
                 ));
     }
