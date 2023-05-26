@@ -15,4 +15,6 @@ public interface UserService {
     User loginFromToken(Long userID) throws EntityNotFoundException;
 
     Subscription subscribeToPremium(Long userID) throws UserAlreadySubscribedException, EntityNotFoundException;
+
+    User findByNameOrNickname(String query) throws EntityNotFoundException;
 }

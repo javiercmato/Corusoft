@@ -95,4 +95,8 @@ public class UserServiceImpl implements UserService {
         return subsRepo.save(subscription);
     }
 
+    @Override
+    public User findByNameOrNickname(String query) throws EntityNotFoundException {
+        return userUtils.findByNameOrNickname(query);
+    }
 }
