@@ -6,6 +6,7 @@ import com.corusoft.ticketmanager.backend.dtos.tickets.CreateCustomizedCategoryP
 import com.corusoft.ticketmanager.backend.dtos.tickets.CreateTicketParamsDTO
 import com.corusoft.ticketmanager.backend.dtos.tickets.CustomizedCategoryDTO
 import com.corusoft.ticketmanager.backend.dtos.tickets.ParsedTicketDTO
+import com.corusoft.ticketmanager.backend.dtos.tickets.WastesPerCategoryParamsDTO
 import com.corusoft.ticketmanager.backend.dtos.tickets.ShareTicketParamsDTO
 import com.corusoft.ticketmanager.backend.dtos.tickets.TicketDTO
 import com.corusoft.ticketmanager.backend.dtos.tickets.filters.TicketFilterParamsDTO
@@ -77,11 +78,11 @@ interface IBackendService {
     suspend fun getSpendingsPerMonth(): Response<Map<YearMonth, Double>>
 
     @GET("stats/wastesCategory")
-    suspend fun getWastesPerCategory(): Response<Map<Long, Double>>
+    suspend fun getWastesPerCategory(@Body params: WastesPerCategoryParamsDTO): Response<Map<YearMonth, Double>>
 
     @GET("stats/spendingsThisMonth")
-    suspend fun getSpendingsThisMonth(): Response<Map<Long, Double>>
+    suspend fun getSpendingsThisMonth(): Response<Map<String, Double>>
 
     @GET("stats/percentagePerCategory")
-    suspend fun getPercentagePerCategoryThisMonth(): Response<Map<Long, Double>>
+    suspend fun getPercentagePerCategoryThisMonth(): Response<Map<String, Double>>
 }
