@@ -37,10 +37,26 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()                           // login
                 .requestMatchers(HttpMethod.POST, "/api/users/login/token").permitAll()                     // loginFromToken
                 .requestMatchers(HttpMethod.POST, "/api/users/subscribe/*").permitAll()                     // subscribeToPremium
+                .requestMatchers(HttpMethod.GET, "/api/users").permitAll()                                  // findUserByNameOrNickname
 
                 // TICKET ENDPOINTS
+                .requestMatchers(HttpMethod.GET, "/api/tickets/categories").permitAll()                     // getAllCategories
+                .requestMatchers(HttpMethod.POST, "/api/tickets/categories").permitAll()                    // createCustomizedCategory
+                .requestMatchers(HttpMethod.PUT, "/api/tickets/categories/*").permitAll()                   // updateCustomizedCategory
+                .requestMatchers(HttpMethod.GET, "/api/tickets/categories/*").permitAll()                   // getCustomizedCategoriesByUser
+                .requestMatchers(HttpMethod.POST, "/api/tickets/parse").permitAll()                         // parseTicket
+                .requestMatchers(HttpMethod.POST, "/api/tickets/").permitAll()                              // createTicket
+                .requestMatchers(HttpMethod.DELETE, "/api/tickets/*").permitAll()                           // deleteTicket
+                .requestMatchers(HttpMethod.POST, "/api/tickets/share/*").permitAll()                       // shareTicket
+                .requestMatchers(HttpMethod.GET, "/api/tickets/*").permitAll()                              // getTicketDetails
+                .requestMatchers(HttpMethod.PUT, "/api/tickets/*").permitAll()                              // filterUserTicketsByCriteria
+                .requestMatchers(HttpMethod.GET, "/api/tickets/sharedTickets").permitAll()
 
                 // STATISTICS ENDPOINTS
+                .requestMatchers(HttpMethod.GET, "/api/stats/spendingsPerMonth").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/stats/wastesCategory").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/stats/spendingsThisMonth").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/stats/percentagePerCategory").permitAll()
 
                 // DENEGAR EL RESTO DE PETICIONES
                 .anyRequest().denyAll();

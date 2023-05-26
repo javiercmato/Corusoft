@@ -33,6 +33,7 @@
         <dependencies.versions.postgresqldriver>42.5.4</dependencies.versions.postgresqldriver>
         <dependencies.versions.commons-io>2.11.0</dependencies.versions.commons-io>
         <testcontainers.version>1.17.6</testcontainers.version>
+        <mindee.sdk.version>3.2.1</mindee.sdk.version>
     </properties>
 
     <dependencies>
@@ -86,7 +87,6 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -135,6 +135,12 @@
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <artifactId>mindee-api-java</artifactId>
+            <groupId>com.mindee.sdk</groupId>
+            <version>${mindee.sdk.version}</version>
         </dependency>
 
     </dependencies>

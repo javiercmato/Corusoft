@@ -12,6 +12,7 @@ import com.corusoft.ticketmanager.users.entities.User;
 import com.corusoft.ticketmanager.users.exceptions.IncorrectLoginException;
 import com.corusoft.ticketmanager.users.exceptions.UserAlreadySubscribedException;
 import com.corusoft.ticketmanager.users.services.UserService;
+import com.corusoft.ticketmanager.users.services.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.*;
@@ -29,9 +30,11 @@ public class UserController {
     @Autowired
     private JwtGenerator jwtGenerator;
     @Autowired
-    private UserService userService;
-    @Autowired
     private MessageSource messageSource;
+    @Autowired
+    private UserUtils userUtils;
+    @Autowired
+    private UserService userService;
 
     /* ******************** TRADUCCIONES DE EXCEPCIONES ******************** */
     public static final String INCORRECT_LOGIN_EXCEPTION_KEY = "users.exceptions.IncorrectLoginException";
@@ -124,7 +127,7 @@ public class UserController {
     public SubscriptionDTO subscribeToPremium(@RequestAttribute("userID") Long userID, @PathVariable("userID") Long pathUserID)
             throws PermissionException, EntityNotFoundException, UserAlreadySubscribedException {
         // Comprobar que el usuario actual y el usuario objetivo son el mismo
-        if (!this.doUsersMatch(userID, pathUserID))
+        if (!userUtils.doUsersMatch(userID, pathUserID))
             throw new PermissionException();
 
         // Crear subscripción
@@ -132,6 +135,18 @@ public class UserController {
 
         // Devolver subscripción
         return SubscriptionConversor.toSubscriptionDTO(subscription);
+    }
+
+    @GetMapping (path = "",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public UserDTO findUserByNameOrNickname(@RequestParam("name") String query)
+            throws EntityNotFoundException {
+        // Busca al usuario
+        User user = userService.findByNameOrNickname(query);
+
+        // Devuelve los datos del usuario encontrado
+        return UserConversor.toUserDTO(user);
     }
 
     /* ******************** FUNCIONES AUXILIARES ******************** */
@@ -146,11 +161,5 @@ public class UserController {
         return jwtGenerator.generateJWT(jwtData);
     }
 
-    /**
-     * Comprueba si dos usuarios son el mismo comparando sus ID
-     */
-    public boolean doUsersMatch(Long requestUserID, Long targetUserID) {
-        return requestUserID.equals(targetUserID);
-    }
 
 }

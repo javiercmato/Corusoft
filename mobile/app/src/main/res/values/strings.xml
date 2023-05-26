@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">TicketManager</string>
-    <string name="this_week">This week</string>
+    <string name="this_month">This month</string>
     <string name="_174_32">174.32 €</string>
     <string-array name="my_tickets">
         <item>Ticket 1</item>
@@ -24,4 +24,5 @@
     <string name="remember_me">Remember me</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="take_photo">Take photo</string>
 </resources>

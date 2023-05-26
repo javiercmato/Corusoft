@@ -5,8 +5,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.corusoft.ticketmanager.backend.BackendAPI
+import com.corusoft.ticketmanager.backend.dtos.users.LoginParamsDTO
+import com.corusoft.ticketmanager.backend.dtos.users.UserDTO
+import com.corusoft.ticketmanager.backend.exceptions.BackendConnectionException
+import com.corusoft.ticketmanager.backend.exceptions.BackendErrorException
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -18,6 +25,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+
 
 class LogIn : AppCompatActivity(), View.OnClickListener {
 
@@ -74,6 +82,7 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
 
         if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+
             /************/
             // To check that the user information is being collected properly
             val account = task.getResult(ApiException::class.java)!!
@@ -102,28 +111,38 @@ class LogIn : AppCompatActivity(), View.OnClickListener {
         finish()
     }
 
-    fun logIn(view: View) = runBlocking {
-        Log.d("logIn", "Button log in")
-        // ToDo: username/email and password
-        //val intent = Intent(this, Landing::class.java)
-        //startActivity(intent)
-        coroutineScope {
-            launch {
-                // val jsonBody = "{ username: \"$username\", token: \"$token\" }"
-                val result = try {
-                    //login
-                    delay(1000L)
-                } catch (e: Exception) {
-                    Exception("Network request failed")
-                }
-                if (true) { //cambiar por when (Result)
-                    val intent = Intent(this@LogIn, Landing::class.java)
-                    startActivity(intent)
-                } else {
-                    //Error
-                }
+
+    fun backendLogin(view: View) {
+        val nickname = findViewById<EditText>(R.id.editTextTextPersonName3).text.toString()
+        val password = findViewById<EditText>(R.id.editTextTextPersonName4).text.toString()
+        val params = LoginParamsDTO(nickname, password)
+
+        // Realizar petición a backend
+        val backend = BackendAPI()
+        var response: UserDTO?
+        lifecycleScope.launch {
+            try {
+                response = backend.login(params)
+                Toast.makeText(
+                    applicationContext,
+                    "Usuario ${response?.nickname} logeado",
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+
+                val intent = Intent(this@LogIn, Landing::class.java)
+                startActivity(intent)
+            } catch (ex: BackendErrorException) {
+                Toast.makeText(applicationContext, ex.getDetails(), Toast.LENGTH_SHORT)
+                    .show()
+            } catch (ex: BackendConnectionException) {
+                System.err.println(ex.message)
+                Toast.makeText(applicationContext, ex.message, Toast.LENGTH_SHORT)
+                    .show()
             }
+
         }
+
     }
 
     fun logInGoogle(view: View) = runBlocking {

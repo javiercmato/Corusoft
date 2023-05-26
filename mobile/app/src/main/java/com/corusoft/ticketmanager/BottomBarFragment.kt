@@ -19,6 +19,7 @@ class BottomBarFragment : Fragment() {
         // Inflar el archivo de diseño del Fragment
         val view = inflater.inflate(R.layout.fragment_bottom_bar, container, false)
         // Configurar el BottomNavigationView u otros elementos aquí si es necesario
+
         return view
     }
 
@@ -42,7 +43,8 @@ class BottomBarFragment : Fragment() {
                 }
                 R.id.page_3 -> {
                     Log.d("BottomNavigation", "Pulsado botón Scan")
-                    Log.d("BottomNavigation", "Abriendo cámara...")
+                    val intent = Intent(requireActivity(), CameraActivity::class.java)
+                    startActivity(intent)
                 }
                 R.id.page_4 -> {
                     Log.d("BottomNavigation", "Pulsado botón 4")
