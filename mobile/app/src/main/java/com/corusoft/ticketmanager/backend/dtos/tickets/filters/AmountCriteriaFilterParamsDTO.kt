@@ -4,5 +4,5 @@ data class AmountCriteriaFilterParamsDTO(
     val lowerBound: Float?,
     val upperBound: Float?
 ) {
-    constructor(): this(null, null)
+    constructor() : this(null, null)
 }

@@ -4,5 +4,5 @@ data class AuthenticatedUserDTO(
     var serviceToken: String?,
     var user: UserDTO?
 ) {
-    constructor(): this(null, null)
+    constructor() : this(null, null)
 }

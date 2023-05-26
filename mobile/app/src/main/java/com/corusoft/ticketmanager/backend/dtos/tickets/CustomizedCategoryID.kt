@@ -4,4 +4,3 @@ data class CustomizedCategoryID(
     val userID: Long,
     val categoryID: Long
 )
-

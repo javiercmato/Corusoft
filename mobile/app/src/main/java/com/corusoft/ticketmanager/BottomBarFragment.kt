@@ -44,7 +44,8 @@ class BottomBarFragment : Fragment() {
                 R.id.page_3 -> {
                     Log.d("BottomNavigation", "Pulsado botón Scan")
                     val intent = Intent(requireActivity(), CameraActivity::class.java)
-                    startActivity(intent)                }
+                    startActivity(intent)
+                }
                 R.id.page_4 -> {
                     Log.d("BottomNavigation", "Pulsado botón 4")
                     val intent = Intent(requireActivity(), AddTicket::class.java)

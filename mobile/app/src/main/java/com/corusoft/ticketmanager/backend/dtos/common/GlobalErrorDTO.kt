@@ -8,5 +8,3 @@ data class GlobalErrorDTO(
 ) {
     constructor() : this(null)
 }
-
-

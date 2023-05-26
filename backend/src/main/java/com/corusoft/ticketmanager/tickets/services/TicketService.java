@@ -1,4 +1,4 @@
-package com.corusoft.ticketmanager.tickets.services;
+/*package com.corusoft.ticketmanager.tickets.services;
 
 import com.corusoft.ticketmanager.common.exceptions.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateTicketParamsDTO;
@@ -33,3 +33,4 @@ public interface TicketService {
     List<Ticket> getSharedTickets(Long userId) throws EntityNotFoundException;
     List<Ticket> filterUserTicketsByCriteria(Long userID, TicketFilterParamsDTO params) throws EntityNotFoundException;
 }
+*/

@@ -61,4 +61,10 @@ class SignUp : AppCompatActivity() {
         }
     }
 
+    fun logIn(view: View) {
+        Log.d("logIn", "Button log in")
+        val intent = Intent(this, LogIn::class.java)
+        startActivity(intent)
+    }
+
 }
