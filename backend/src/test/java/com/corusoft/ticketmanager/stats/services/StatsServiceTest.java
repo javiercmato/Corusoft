@@ -86,6 +86,9 @@ public class StatsServiceTest {
         expected_results.remove(YearMonth.from(modifiedDate));
         expected_results.put(YearMonth.from(modifiedDate), 4.0);
 
+        List<Ticket> a = ticketrepo.findAll();
+        Set<Ticket> tickets = ticketrepo.getTicketsByUser(validUser.getId());
+
         Map<YearMonth, Double> results = statsService.getSpendingsByUser(validUser.getId());
 
         boolean isEquals = mapEquals(results , expected_results);

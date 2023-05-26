@@ -184,10 +184,10 @@ public class TicketController {
             throw new PermissionException();
 
         // Comprobar que usuario no intenta compartir ticket consigo mismo
-        if (userUtils.doUsersMatch(params.getSenderID(), params.getReceiverID()))
+        if (userUtils.fetchUserByID(params.getSenderID()).getName().equalsIgnoreCase(params.getReceiverName()))
             throw new PermissionException();
 
-        Ticket ticket = ticketService.shareTicket(userID, ticketID, params.getReceiverID());
+        Ticket ticket = ticketService.shareTicket(userID, ticketID, params.getReceiverName());
 
         return TicketConversor.toTicketDTO(ticket);
     }

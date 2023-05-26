@@ -1,4 +1,4 @@
-/*package com.corusoft.ticketmanager.tickets.services;
+package com.corusoft.ticketmanager.tickets.services;
 
 import com.corusoft.ticketmanager.common.exceptions.*;
 import com.corusoft.ticketmanager.tickets.controllers.dtos.CreateTicketParamsDTO;
@@ -23,7 +23,7 @@ public interface TicketService {
 
     Ticket createTicket(CreateTicketParamsDTO params) throws EntityNotFoundException, UnableToParseImageException;
 
-    Ticket shareTicket(Long userID, Long ticketID, Long receiverID) throws EntityNotFoundException, TicketAlreadySharedException,
+    Ticket shareTicket(Long userID, Long ticketID, String receiverName) throws EntityNotFoundException, TicketAlreadySharedException,
             PermissionException;
 
     void deleteTicket(Long userID, Long ticketID) throws EntityNotFoundException, TicketNotInPropertyException;
@@ -33,4 +33,3 @@ public interface TicketService {
     List<Ticket> getSharedTickets(Long userId) throws EntityNotFoundException;
     List<Ticket> filterUserTicketsByCriteria(Long userID, TicketFilterParamsDTO params) throws EntityNotFoundException;
 }
-*/

@@ -45,9 +45,10 @@ public class StatsServiceImpl implements StatsService {
         User user = userUtils.fetchUserByID(userID);
 
         // Recuperar tickets del usuario
-        Set<Ticket> tickets = ticketRepo.getTicketsByUserId(user.getId());
+        Set<Ticket> tickets = ticketRepo.getTicketsByUser(user.getId());
 
         Map<YearMonth, Double> spendsByMonth = new TreeMap<>();
+
         if (!tickets.isEmpty()) {
             // Agrupar tickets por mes
             spendsByMonth = tickets.stream()

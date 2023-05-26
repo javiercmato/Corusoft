@@ -11,5 +11,5 @@ public class ShareTicketParamsDTO {
     private Long senderID;
 
     @NotNull
-    private Long receiverID;
+    private String receiverName;
 }

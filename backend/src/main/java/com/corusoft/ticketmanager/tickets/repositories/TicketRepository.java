@@ -24,8 +24,8 @@ public interface TicketRepository extends ListCrudRepository<Ticket, Long>,
             " t.registeredAt > ?2 ")
     List<Ticket> getTicketsthisMonth(User user, LocalDateTime thisMonth);
 
-    @Query("SELECT t from Ticket t WHERE t.creator.id = ?1 group by t.customizedCategory.category")
-    Set<Ticket> getTicketsByUserId(Long userId);
+    @Query("SELECT t from Ticket t WHERE t.creator.id = ?1")
+    Set<Ticket> getTicketsByUser(Long userId);
     List<Ticket> findDistinctByCreatorOrderByEmittedAtDesc(User creator);
 
 }

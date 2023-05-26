@@ -236,7 +236,8 @@ public class TicketControllerTest {
         Ticket ticket = testUtils.registerTicket(customizedCategory, author, parsedTicketData);
         AuthenticatedUserDTO authorAuthDTO = testUtils.generateAuthenticatedUser(author);
         JwtData authorJwtData = jwtGenerator.extractInfoFromToken(authorAuthDTO.getServiceToken());
-        ShareTicketParamsDTO paramsDTO = new ShareTicketParamsDTO(author.getId(), receiver.getId());
+
+        ShareTicketParamsDTO paramsDTO = new ShareTicketParamsDTO(author.getId(), receiver.getNickname());
 
         // Ejecutar funcionalidades
         String endpoint = API_ENDPOINT + "/share/" + ticket.getId().toString();
