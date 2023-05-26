@@ -169,6 +169,39 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepo.save(ticket);
     }
 
+    /** FIXME: Sigo diciendo que no es posible ejecutar el caso de uso ya que se desconoce el receiverID,
+     * anoto la solución correcta **/
+/*
+    @Override
+    public Ticket shareTicket(Long userID, Long ticketId, String receiverName) throws EntityNotFoundException,
+            TicketAlreadySharedException, PermissionException {
+        // Comprobar si existen el autor, el receptor y el ticket
+        User owner = userUtils.fetchUserByID(userID);
+        User receiver =  userUtils.fetchUserByName(name);
+        Ticket ticket = ticketUtils.fetchTicketById(ticketId);
+
+        // Comprobar que el usuario sea el dueño del ticket.
+        if (!ticket.getCreator().equals(owner)) {
+            throw new PermissionException();
+        }
+
+        // Comprobar que el receptor del ticket no sea el propietario del ticket
+        if (ticket.getCreator().equals(receiver)) {
+            throw new TicketAlreadySharedException(Ticket.class.getSimpleName(), receiver.getNickname());
+        }
+
+        // Comprobar que el receptor no haya recibido el ticket actual previamente
+        if (receiver.getSharedTickets().contains(ticket)) {
+            throw new TicketAlreadySharedException(Ticket.class.getSimpleName(), receiver.getNickname());
+        }
+
+        // Compartir el ticket con el receptor
+        ticket.shareWithUser(receiver);
+
+        return ticketRepo.save(ticket);
+    }
+    */
+
     @Override
     public Ticket shareTicket(Long userID, Long ticketId, Long receiverID) throws EntityNotFoundException,
             TicketAlreadySharedException, PermissionException {

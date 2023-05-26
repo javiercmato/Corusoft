@@ -15,7 +15,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/stats")
@@ -67,10 +69,10 @@ public class StatsController {
 
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Map<CategoryDto, Double> getSpendingsThisMonth(@RequestAttribute("userID") Long userID)
+    public Map<String, Double> getSpendingsThisMonth(@RequestAttribute("userID") Long userID)
             throws EntityNotFoundException {
 
-        return statsService.getSpendingsThisMonth(userID);
+        return convertMap(statsService.getSpendingsThisMonth(userID));
     }
 
     @GetMapping(path = "/percentagePerCategory",
@@ -78,10 +80,17 @@ public class StatsController {
     )
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Map<CategoryDto, Double> getPercentagePerCategoryThisMonth(@RequestAttribute("userID") Long userID)
+    public Map<String, Double> getPercentagePerCategoryThisMonth(@RequestAttribute("userID") Long userID)
             throws EntityNotFoundException {
 
-        return statsService.getPercentagePerCategoryThisMonth(userID);
+        return convertMap(statsService.getPercentagePerCategoryThisMonth(userID));
     }
 
+    private static Map<String, Double> convertMap(Map<CategoryDto, Double> originalMap) {
+        return originalMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().getName(),
+                        Map.Entry::getValue
+                ));
+    }
 }
