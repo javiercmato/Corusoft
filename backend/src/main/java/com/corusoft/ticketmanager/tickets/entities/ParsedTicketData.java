@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "parsedticketdata")
 public class ParsedTicketData {
@@ -45,8 +47,8 @@ public class ParsedTicketData {
     private String currency;
 
     @Column(name = "total_tax")
-    private Float total_tax;
+    private Float totalTax;
 
     @Column(name = "total_amount")
-    private Float total_amount;
+    private Float totalAmount;
 }
